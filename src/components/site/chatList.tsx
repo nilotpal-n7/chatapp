@@ -1,13 +1,22 @@
 import React, { useState } from 'react'
 import ProfileCard from './profileCard'
+import { fetchMessages, setId } from '@/store/messageSlice'
+import { useAppDispatch } from '@/store/hooks'
 
 function ChatList() {
-  const [selectedUser, setSelectedUser] = useState<number | null>(null)
+  const dispatch = useAppDispatch()
+  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+
+  const onClick = (userId: string) => {
+    setSelectedUser(userId)
+    dispatch(setId(userId))
+    dispatch(fetchMessages(userId))
+  }
 
   const users = [
     {
-      id: 1,
-      name: 'Jenny Li',
+      id: '6858283a3bf38fca0a7ae84a',
+      name: 'Pallu',
       imgSrc: 'profile-img.webp',
       message: 'I want to ask you to pick ...',
       time: '9:52 am',
@@ -16,26 +25,15 @@ function ChatList() {
       isRead: false,
     },
     {
-      id: 2,
-      name: 'Harry Fettel',
+      id: '685827ea3bf38fca0a7ae83b',
+      name: 'Nilot',
       imgSrc: 'profile-img.webp',
-      message: 'Our company needs to prepare',
-      time: '15 m',
-      unreadCount: 0,
-      isStarred: false,
-      isRead: true,
+      message: 'I want to ask you to pick ...',
+      time: '9:52 am',
+      unreadCount: 5,
+      isStarred: true,
+      isRead: false,
     },
-    {
-      id: 3,
-      name: 'Harry Fettel',
-      imgSrc: 'profile-img.webp',
-      message: 'Our company needs to prepare',
-      time: '15 m',
-      unreadCount: 1,
-      isStarred: false,
-      isRead: true,
-    },
-    // more users...
   ]
 
   return (
@@ -45,7 +43,7 @@ function ChatList() {
                 key={user.id}
                 {...user}
                 selected={selectedUser === user.id}
-                onClick={() => setSelectedUser(user.id)}
+                onClick={() => onClick(user.id)}
             />
         ))}
     </>

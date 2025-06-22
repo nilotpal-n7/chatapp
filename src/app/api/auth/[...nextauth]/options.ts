@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
                     })
 
                     if(!user) {
-                        throw new Error("No user found with this email/username.")
+                        throw new Error("User not found.")
                     }
 
                     const isPasswordCorrect = await bcrypt.compare(password, user.password)
@@ -48,7 +48,7 @@ export const authOptions: NextAuthOptions = {
                     } else if(isCodeExpired) {
                         throw new Error('Code has expired.')
                     } else if(!isCodeCorrect) {
-                        throw new Error('Code is incorrect!')
+                        throw new Error("Code didn't match")
                     } else {
                         const {password, verifyCode, verifyCodeExpiry, ...safeUser} = user.toObject()
                         return safeUser as User

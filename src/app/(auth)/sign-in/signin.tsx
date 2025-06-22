@@ -40,25 +40,38 @@ export default function SignIn() {
   const onLoginSubmit = async (data: SignInType) => {
     setIsSubmitting(true)
 
-    const result = await signIn('credentials', {
+    try {
+      const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
         code: data.code,
-    })
-
-    console.log("SignIn result", result)
-    if(result?.error) {
+      });
+    
+      console.log("SignIn result:", result);
+    
+      if (result?.error) {
         toast.error("Login failed", {
-            description: "Incorrect credentials"
-        })
-    }
+          description: result.error,
+        });
+        return;
+      }
 
-    if(result?.url) {
-        router.replace(`/dashboard`)
-    }
+      toast.success("Login successfull", {
+        description: 'You are now logged in',
+      });
+    
+      if (result?.url) {
+        router.replace(result.url);
+      }
+    
+    } catch (error) {
+      console.error("Unexpected error during sign-in:", error);
+      toast.error("Unexpected error occurred");
 
-    setIsSubmitting(false)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const onCodeSubmit = async () => {
@@ -101,7 +114,7 @@ export default function SignIn() {
             Not A Member? <StyledLink href="/sign-up">Register</StyledLink>
           </LoginPrompt>
 
-          <form onSubmit={handleSubmit(onLoginSubmit)} autoComplete='off'>
+          <form onSubmit={handleSubmit(onLoginSubmit)} autoComplete="off">
             <InputWrapper>
               <StyledInput placeholder="Email" {...register('email')}/>
               <InputIcon src="/email.svg" alt="Email" />

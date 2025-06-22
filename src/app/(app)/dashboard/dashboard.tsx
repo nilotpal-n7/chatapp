@@ -3,9 +3,14 @@
 import ChatList from '@/components/site/chatList'
 import ChatWindow from '@/components/site/chatWindow'
 import Sidebar from '@/components/site/sidebar'
+import { useEffect } from 'react'
 import styled from 'styled-components'
 
 function Dashboard() {
+  useEffect(() => {
+    fetch('/api/socket');
+  }, []);
+
   return (
     <Container>
       <LeftPanel>
@@ -37,6 +42,29 @@ const Container = styled.div`
   background-color: #131313;
   display: flex;
   overflow-y: hidden;
+
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #5c5c5c transparent; /* Firefox */
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #5c5c5c;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+  }
 `
 const LeftPanel = styled.div`
   height: 100%;

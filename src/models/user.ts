@@ -5,6 +5,7 @@ export interface User extends Document {
     lastName: string;
     email: string;
     password: string;
+    blockedUsers: User[];
     verifyCode: string;
     verifyCodeExpiry: Date;
 }
@@ -29,6 +30,11 @@ const UserSchema: Schema<User> = new Schema({
         type: String,
         required: true,
     },
+    blockedUsers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: [],
+    }],
     verifyCode: {
         type: String,
         required: [true, "verify code is required"],
@@ -37,7 +43,7 @@ const UserSchema: Schema<User> = new Schema({
         type: Date,
         reruired: [true, "verify code expiry is required"],
     },
-})
+}, {timestamps: true})
 
 const UserModel = (mongoose.models.User) as mongoose.Model<User> || (mongoose.model<User>("User", UserSchema))
 export default UserModel

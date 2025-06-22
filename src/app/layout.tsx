@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Archivo } from 'next/font/google'
-import AuthProvider from "@/context/AuthProvider";
+import Providers from "@/context/Providers";
+import { Toaster } from "@/components/ui/sonner";
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -21,11 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <AuthProvider>
+      <Providers>
         <body className={archivo.className}>
-          {children}
+          <main>{children}</main>
+          <Toaster position="bottom-right" richColors />
         </body>
-      </AuthProvider>
+      </Providers>
     </html>
   );
 }

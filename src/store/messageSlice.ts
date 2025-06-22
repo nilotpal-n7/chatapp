@@ -1,15 +1,36 @@
+import { Message } from "@/models/message";
+import { ApiResponse } from "@/types/ApiResponse";
 import { ChatMessage } from "@/types/ChatMessage";
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+
+export const fetchMessages = createAsyncThunk(
+    'message/fetch-messages',
+    async (id: string) => {
+        const response = await axios.get<ApiResponse>('/api/fetch-messages', {params: {id}})
+        return response.data.todos as Message[]
+    }
+)
+
+export const sendMessage = createAsyncThunk(
+    'message/send-message',
+    async ({id, message}: {id: string, message: string}) => {
+        const response = await axios.post<ApiResponse>('/api/send-message', {id, message})
+        return response.data.todo as Message
+    }
+)
 
 interface MessageState {
     messages: ChatMessage[]
     loading: boolean,
+    id: string,
     error: string | null,
 }
 
 const initialState: MessageState = {
     messages: [],
     loading: false,
+    id: '',
     error: null,
 }
 
@@ -17,20 +38,48 @@ const messageSlice = createSlice({
     name: 'message',
     initialState,
     reducers: {
-        addMessage: (state, action) => {
-            const message: ChatMessage = {
-                id: nanoid(),
-                senderId: action.payload.senderId,
-                receiverId: action.payload.receiverId,
-                message: action.payload.message,
-            }
-            state.messages.push(message)
+        clearMessages: (state) => {
+            state.messages = []
         },
-        removeMessage: (state, action) => {
-            state.messages = state.messages.filter((todo) => todo.id != action.payload.id)
-        }
-    }
+
+        setId: (state, action) => {
+            state.id = action.payload
+        },
+
+        addMessage: (state, action: PayloadAction<ChatMessage>) => {
+            state.messages.push(action.payload);
+        },
+     },
+
+     extraReducers: (builder) => {
+        builder
+
+        .addCase(fetchMessages.pending, state => {
+            state.loading = true
+            state.error = null
+        })
+        .addCase(fetchMessages.fulfilled, (state, action) => {
+            state.loading = false
+            state.messages = action.payload
+        })
+        .addCase(fetchMessages.rejected, (state, action) => {
+            state.loading = false
+            state.error = action.error.message || 'Failed to fetch messages'
+        })
+        .addCase(sendMessage.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(sendMessage.fulfilled, (state, action) => {
+          state.loading = false;
+          state.messages.push(action.payload);
+        })
+        .addCase(sendMessage.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.error.message || 'Failed to send message';
+        });
+     }
 })
 
 export default messageSlice.reducer
-export const { addMessage, removeMessage } = messageSlice.actions
+export const { clearMessages, setId, addMessage } = messageSlice.actions
