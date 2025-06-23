@@ -1,7 +1,7 @@
 // /app/api/search-users/route.ts
 import dbConnect from '@/server/db';
 import User from '@/models/user';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
         const query = searchParams.get('query');
 
         if (!query) {
-            return Response.json({
+            return NextResponse.json({
                 success: false,
                 message: 'Error searching users: Missing query',
             }, { status: 400 });
@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
           email: { $regex: query, $options: 'i' },
         }).select('_id email firstName lastName');
 
-        return Response.json({
+        return NextResponse.json({
             success: true,
             message: 'Users fetched',
             users: users,
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error) {
         console.log('Error getting users', error)
-        return Response.json({
+        return NextResponse.json({
             success: false,
             message: 'Error getting users',
         });

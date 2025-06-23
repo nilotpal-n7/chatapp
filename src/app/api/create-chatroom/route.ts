@@ -2,15 +2,16 @@ import ChatroomModel from '@/models/chatroom';
 import dbConnect from '@/server/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/options';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     await dbConnect();
     const {userId, isGroup, name} = await req.json()
     const session = await getServerSession(authOptions)
 
     if (!session || !session.user || !session.user._id) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         message: 'Unauthorized',
       }, { status: 401 });
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
     const userIds = [session.user._id, userId]
 
     if (!Array.isArray(userIds) || userIds.length < 2) {
-      return Response.json({ success: false, message: 'At least two participants required' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'At least two participants required' }, { status: 400 });
     }
 
     if (!isGroup) {
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
       });
 
       if (existing) {
-        return Response.json({
+        return NextResponse.json({
           success: true,
           message: 'Chatroom joined successfully',
           room: existing,
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
       createdBy: userIds[0],
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       message: 'Chatroom created successfully',
       room: newRoom,
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
     
   } catch (error) {
     console.error('Error creating/joining chatroom:', error);
-    return Response.json({
+    return NextResponse.json({
       success: false,
       message: 'Error creating/joining chatroom',
     }, { status: 500 });

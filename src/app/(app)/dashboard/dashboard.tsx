@@ -11,10 +11,6 @@ import { useEffect } from 'react'
 import styled from 'styled-components'
 
 function Dashboard() {
-  useEffect(() => {
-    fetch('/api/socket');
-  }, []);
-
   const dispatch = useAppDispatch();
   const { data: session } = useSession();
 

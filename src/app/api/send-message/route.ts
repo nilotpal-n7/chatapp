@@ -4,14 +4,15 @@ import { authOptions } from "../auth/[...nextauth]/options";
 import MessageModel from "@/models/message";
 import mongoose from "mongoose";
 import ChatroomModel from "@/models/chatroom";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     await dbConnect();
 
     const { roomId, message } = await req.json();
     if (!roomId || !message) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         message: "Missing roomId or message text",
       }, { status: 400 });
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
 
     const session = await getServerSession(authOptions);
     if (!session || !session.user) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         message: "Not authorized",
       }, { status: 401 });
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
     // Validate user is part of the room
     const chatroom = await ChatroomModel.findById(roomId);
     if (!chatroom || !chatroom.participants.includes(userId)) {
-      return Response.json({
+      return NextResponse.json({
         success: false,
         message: "User is not part of this chatroom",
       }, { status: 403 });
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
     chatroom.lastMessage = newMessage._id;
     await chatroom.save();
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       message: "Message sent",
       todo: newMessage,
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("Error sending message:", error);
-    return Response.json({
+    return NextResponse.json({
       success: false,
       message: "Error sending message",
     }, { status: 500 });

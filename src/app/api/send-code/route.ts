@@ -1,8 +1,9 @@
 import { sendVerificationEmail } from '@/lib/sendVerificationEmail'
 import UserModel from '@/models/user'
 import dbConnect from '@/server/db'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
     await dbConnect()
 
     try {
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
 
         if(!user) {
             console.log('user not found')
-            return Response.json({
+            return NextResponse.json({
                 success: false,
                 message: 'User not found'
             })
@@ -29,12 +30,12 @@ export async function POST(req: Request) {
             expiryDate,
         )
         if(!emailResponse.success) {
-            return Response.json({
+            return NextResponse.json({
                 success: false,
                 message: emailResponse.message
             }, {status: 500})
         } else {
-            return Response.json({
+            return NextResponse.json({
                 success: true,
                 message: "Email sent successfully, please verify your email"
             }, {status: 201})
@@ -42,7 +43,7 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error('Error sending email', error)
-        return Response.json({
+        return NextResponse.json({
                 success: false,
                 message: "Error sending email"
         }, {status: 500})

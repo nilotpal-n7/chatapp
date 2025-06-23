@@ -1,14 +1,16 @@
 import ChatroomModel from "@/models/chatroom";
 import dbConnect from "@/server/db";
+import '@/models/message';
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
     if (!userId) {
-        return Response.json({
+        return NextResponse.json({
             success: false,
             message: 'Error fetching chatrooms: Missing userId',
         }, { status: 400 });
@@ -22,7 +24,7 @@ export async function GET(req: Request) {
       .populate('lastMessage');
 
       
-    return Response.json({
+    return NextResponse.json({
         success: true,
         message: 'Chatrooms fetched successfully',
         rooms: rooms,
@@ -30,7 +32,7 @@ export async function GET(req: Request) {
 
   } catch (error) {
     console.error('Error fetching user chatrooms:', error);
-    return Response.json({
+    return NextResponse.json({
         success: false,
         message: 'Error fetching user chatrooms',
     }, { status: 500 });

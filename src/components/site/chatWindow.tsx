@@ -2,15 +2,36 @@ import React from 'react'
 import styled from 'styled-components'
 import ChatArea from './chatArea'
 import TextArea from './textArea'
+import { useAppSelector } from '@/store/hooks';
+import { getChatroomDisplayName } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
+import { useSocket } from '@/hooks/use-socket';
 
 function ChatWindow() {
+    const roomId = useAppSelector(state => state.chatroom.roomId);
+    const chatrooms = useAppSelector(state => state.chatroom.chatrooms);
+    const currentRoom = chatrooms.find(room => room._id === roomId);
+    const { socket, onlineUsers } = useSocket(roomId);
+    const {data: session} = useSession()
+    const onlineCount = currentRoom?.participants.filter(p =>
+        onlineUsers.includes(p._id)
+    ).length;
+
+
   return (
     <Container>
         <TopRow>
             <LeftRow>
-                <Name>Office Chat</Name>
+                <Name>
+                  {currentRoom?.isGroup
+                    ? currentRoom.name
+                    : session?.user?._id && currentRoom
+                      ? getChatroomDisplayName(currentRoom, session.user._id)
+                      : 'Loading...'}
+                </Name>
+
                 <Details>
-                    45 members, 24 online
+                    {currentRoom?.participants.length} members, {onlineCount} online
                 </Details>
             </LeftRow>
 
@@ -34,6 +55,7 @@ const Container = styled.div`
     flex: 1;
     display: flex;
     flex-direction: column;
+    min-width: 500px;
 `
 const TopRow = styled.div`
     height: 50px;

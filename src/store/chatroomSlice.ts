@@ -2,6 +2,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Chatroom } from '@/models/chatroom';
+import { Message } from '@/models/message';
 
 export const fetchChatrooms = createAsyncThunk(
   'chatroom/fetch-chatrooms',
@@ -40,6 +41,13 @@ const chatroomSlice = createSlice({
     setRoomId: (state, action: PayloadAction<string>) => {
       state.roomId = action.payload
     },
+
+    updateLastMessage: (state, action: PayloadAction<{ roomId: string, message: Message }>) => {
+      const room = state.chatrooms.find(r => r._id === action.payload.roomId);
+      if (room) {
+        room.lastMessage = action.payload.message;
+      }
+    }
   },
 
   extraReducers: (builder) => {
@@ -72,4 +80,4 @@ const chatroomSlice = createSlice({
 });
 
 export default chatroomSlice.reducer;
-export const {setRoomId} = chatroomSlice.actions
+export const {setRoomId, updateLastMessage} = chatroomSlice.actions

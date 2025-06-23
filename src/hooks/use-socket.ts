@@ -1,31 +1,32 @@
-import { useEffect } from 'react';
-import io, { Socket } from 'socket.io-client';
-import { useAppDispatch } from '@/store/hooks';
-import { addMessage } from '@/store/messageSlice';
+import { useEffect, useRef, useState } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 
-let socket: Socket;
-
-export function useSocket() {
-  const dispatch = useAppDispatch();
+export function useSocket(roomId: string | null) {
+  const socketRef = useRef<Socket | null>(null);
+  const [socketReady, setSocketReady] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const { data: session } = useSession();
 
+  // Initialize socket
   useEffect(() => {
-    socket = io({ path: '/api/socket_io' });
+    const socket = io(undefined, {
+      path: '/api/socket_io',
+    });
+
+    socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('🟢 Connected to Socket.IO');
+      console.log('✅ Socket connected:', socket.id);
+      setSocketReady(true);
 
-      // ✅ Join this user's private room
       if (session?.user?._id) {
-        socket.emit('join-room', session.user._id);
+        socket.emit('register-user', session.user._id); // Register user globally
       }
     });
 
-    socket.on('new-message', (msg) => {
-      if (msg.senderId !== session?.user._id) {
-        dispatch(addMessage(msg));
-      }
+    socket.on('room-online-users', (users: string[]) => {
+      setOnlineUsers(users); // Track online users in current room
     });
 
     return () => {
@@ -33,9 +34,13 @@ export function useSocket() {
     };
   }, [session?.user?._id]);
 
-  const sendMessageSocket = (msg: any) => {
-    socket.emit('send-message', msg); // msg must contain receiverId
-  };
+  // Join chatroom
+  useEffect(() => {
+    if (socketRef.current && roomId) {
+      socketRef.current.emit('join-room', roomId);
+      console.log(`📥 Joined room: ${roomId}`);
+    }
+  }, [roomId]);
 
-  return { sendMessageSocket };
+  return { socket: socketRef.current, onlineUsers };
 }

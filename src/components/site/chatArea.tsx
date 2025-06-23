@@ -1,14 +1,36 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import MessageCard from './messageCard';
-import { useAppSelector } from '@/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useSession } from 'next-auth/react';
+import { useSocket } from '@/hooks/use-socket';
+import { addMessage } from '@/store/messageSlice';
+import { updateLastMessage } from '@/store/chatroomSlice';
 
 function ChatArea() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollDir, setScrollDir] = useState<'up' | 'down'>('down');
   const [scrollTop, setScrollTop] = useState(0);
   const [isAtBottom, setIsAtBottom] = useState(true)
+
+  const roomId = useAppSelector((state) => state.chatroom.roomId);
+  const {socket} = useSocket(roomId);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!socket || !roomId) return;
+    socket.emit('join-room', roomId);
+
+    socket.on('receive-message', (message) => {
+      console.log('💬 Message received via socket:', message);
+      if (message.senderId !== session?.user?._id) {
+        dispatch(addMessage(message));
+      } // Add to Redux store
+      dispatch(updateLastMessage({ roomId, message }));
+    });
+
+    return () => socket.off('receive-message');
+  }, [socket, roomId]);
 
   const { data: session } = useSession();
   const messages = useAppSelector((state) => state.message.messages);

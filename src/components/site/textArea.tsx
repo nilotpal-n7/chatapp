@@ -1,4 +1,5 @@
 import { useSocket } from '@/hooks/use-socket';
+import { updateLastMessage } from '@/store/chatroomSlice';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { sendMessage } from '@/store/messageSlice';
 import React, { useState } from 'react'
@@ -9,7 +10,7 @@ function TextArea() {
   const [message, setMessage] = useState('');
   const roomId = useAppSelector((state) => state.chatroom.roomId);
   const dispatch = useAppDispatch();
-  const { sendMessageSocket } = useSocket();
+  const {socket} = useSocket(roomId);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,7 +27,13 @@ function TextArea() {
 
     try {
       const savedMessage = await dispatch(sendMessage({ roomId, message })).unwrap();
-      sendMessageSocket(savedMessage);
+      dispatch(updateLastMessage({ roomId, message: savedMessage }));
+
+      socket?.emit('send-message', {
+        roomId,
+        message: savedMessage,
+      });
+
       toast.success('Success', {
         description: 'Message sent successfully',
       });
