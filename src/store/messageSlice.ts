@@ -6,16 +6,16 @@ import axios from "axios";
 
 export const fetchMessages = createAsyncThunk(
     'message/fetch-messages',
-    async (id: string) => {
-        const response = await axios.get<ApiResponse>('/api/fetch-messages', {params: {id}})
+    async (roomId: string) => {
+        const response = await axios.get<ApiResponse>('/api/fetch-messages', {params: {roomId}})
         return response.data.todos as Message[]
     }
 )
 
 export const sendMessage = createAsyncThunk(
     'message/send-message',
-    async ({id, message}: {id: string, message: string}) => {
-        const response = await axios.post<ApiResponse>('/api/send-message', {id, message})
+    async ({roomId, message}: {roomId: string, message: string}) => {
+        const response = await axios.post<ApiResponse>('/api/send-message', {roomId, message})
         return response.data.todo as Message
     }
 )
@@ -23,14 +23,12 @@ export const sendMessage = createAsyncThunk(
 interface MessageState {
     messages: ChatMessage[]
     loading: boolean,
-    id: string,
     error: string | null,
 }
 
 const initialState: MessageState = {
     messages: [],
     loading: false,
-    id: '',
     error: null,
 }
 
@@ -40,10 +38,6 @@ const messageSlice = createSlice({
     reducers: {
         clearMessages: (state) => {
             state.messages = []
-        },
-
-        setId: (state, action) => {
-            state.id = action.payload
         },
 
         addMessage: (state, action: PayloadAction<ChatMessage>) => {
@@ -82,4 +76,4 @@ const messageSlice = createSlice({
 })
 
 export default messageSlice.reducer
-export const { clearMessages, setId, addMessage } = messageSlice.actions
+export const { clearMessages, addMessage } = messageSlice.actions

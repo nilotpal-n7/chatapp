@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import messageReducer from '@/store/messageSlice'
+import chatroomReducer from '@/store/chatroomSlice'
 
 export const store = configureStore({
     reducer: {
-        message: messageReducer
+        message: messageReducer,
+        chatroom: chatroomReducer,
     }
 })
 

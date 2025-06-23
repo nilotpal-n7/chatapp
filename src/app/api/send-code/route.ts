@@ -2,11 +2,11 @@ import { sendVerificationEmail } from '@/lib/sendVerificationEmail'
 import UserModel from '@/models/user'
 import dbConnect from '@/server/db'
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     await dbConnect()
 
     try {
-        const { email } = await request.json()
+        const { email } = await req.json()
         const user = await UserModel.findOne({email})
         const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
         const expiryDate = new Date(Date.now() + 3600000)

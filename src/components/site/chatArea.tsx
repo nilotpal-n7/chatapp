@@ -8,10 +8,10 @@ function ChatArea() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollDir, setScrollDir] = useState<'up' | 'down'>('down');
   const [scrollTop, setScrollTop] = useState(0);
-  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isAtBottom, setIsAtBottom] = useState(true)
 
-  const messages = useAppSelector((state) => state.message.messages);
   const { data: session } = useSession();
+  const messages = useAppSelector((state) => state.message.messages);
 
   useEffect(() => {
     const container = containerRef.current;

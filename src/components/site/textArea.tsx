@@ -7,16 +7,14 @@ import styled from 'styled-components'
 
 function TextArea() {
   const [message, setMessage] = useState('');
-  const id = useAppSelector((state) => state.message.id);
+  const roomId = useAppSelector((state) => state.chatroom.roomId);
   const dispatch = useAppDispatch();
   const { sendMessageSocket } = useSocket();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Redux message.id = ", id);
-    console.log("user message = ", message);
 
-    if (!id) {
+    if (!roomId) {
       toast.error("No user selected");
       return;
     }
@@ -27,11 +25,12 @@ function TextArea() {
     }
 
     try {
-      const savedMessage = await dispatch(sendMessage({ id, message })).unwrap();
+      const savedMessage = await dispatch(sendMessage({ roomId, message })).unwrap();
       sendMessageSocket(savedMessage);
       toast.success('Success', {
         description: 'Message sent successfully',
       });
+      
       setMessage('');
     } catch (error) {
       console.error('Error sending message', error);
@@ -43,7 +42,7 @@ function TextArea() {
 
   return (
     <FormContainer onSubmit={onSubmit}>
-      <SearchIcon src={'search.svg'} />
+      <SearchIcon src={'send.svg'} />
       <SearchInput
         onChange={(e) => setMessage(e.target.value)}
         type="text"

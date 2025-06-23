@@ -4,7 +4,7 @@ import { Chatroom } from './chatroom';
 
 export interface Message extends Document {
     senderId: User;
-    receiverId: Chatroom;
+    roomId: Chatroom;
     isRead: boolean;
     isSent: boolean;
     isReceived: boolean;
@@ -21,7 +21,7 @@ export const MessageSchema: Schema<Message> = new Schema({
         ref: 'User',
         required: true,
     },
-    receiverId: {
+    roomId: {
         type: Schema.Types.ObjectId,
         ref: 'Chatroom',
         required: true,

@@ -14,8 +14,9 @@ export interface Chatroom extends Document {
 const chatroomSchema: Schema<Chatroom> = new Schema({
     name: {
         type: String,
-        required: false,
+        required: true,
         trim: true,
+        default: 'Chatroom'
     },
     participants: [{
         type: Schema.Types.ObjectId,

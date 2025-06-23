@@ -3,7 +3,12 @@ import styled from 'styled-components';
 import { FaRegEye } from 'react-icons/fa';
 import { motion, useAnimation, useInView } from 'framer-motion';
 
-function MessageCard({ mine, scrollDir, text }: { mine: boolean; scrollDir: 'up' | 'down'; text: string; }) {
+function MessageCard({
+  mine,
+  scrollDir,
+  text,
+  
+}) {
   const ref = useRef(null);
   const inView = useInView(ref, {
     margin: '0px 0px -50px 0px', // key: watch element exiting the top

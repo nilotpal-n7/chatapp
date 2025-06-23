@@ -1,50 +1,39 @@
 import React, { useState } from 'react'
 import ProfileCard from './profileCard'
-import { fetchMessages, setId } from '@/store/messageSlice'
-import { useAppDispatch } from '@/store/hooks'
+import { fetchMessages } from '@/store/messageSlice'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
+import { setRoomId } from '@/store/chatroomSlice'
+import { getChatroomDisplayName } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
 
 function ChatList() {
   const dispatch = useAppDispatch()
-  const [selectedUser, setSelectedUser] = useState<string | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null)
+  const chatrooms = useAppSelector((state) => state.chatroom.chatrooms);
+  const {data: session} = useSession()
+  const currentUserId = session?.user._id;
 
-  const onClick = (userId: string) => {
-    setSelectedUser(userId)
-    dispatch(setId(userId))
-    dispatch(fetchMessages(userId))
+  const onClick = (roomId: string) => {
+    setSelectedRoom(roomId)
+    dispatch(setRoomId(roomId))
+    dispatch(fetchMessages(roomId))
   }
-
-  const users = [
-    {
-      id: '6858283a3bf38fca0a7ae84a',
-      name: 'Pallu',
-      imgSrc: 'profile-img.webp',
-      message: 'I want to ask you to pick ...',
-      time: '9:52 am',
-      unreadCount: 5,
-      isStarred: true,
-      isRead: false,
-    },
-    {
-      id: '685827ea3bf38fca0a7ae83b',
-      name: 'Nilot',
-      imgSrc: 'profile-img.webp',
-      message: 'I want to ask you to pick ...',
-      time: '9:52 am',
-      unreadCount: 5,
-      isStarred: true,
-      isRead: false,
-    },
-  ]
 
   return (
     <>
-        {users.map((user) => (
-            <ProfileCard
-                key={user.id}
-                {...user}
-                selected={selectedUser === user.id}
-                onClick={() => onClick(user.id)}
-            />
+        {Array.isArray(chatrooms) && chatrooms.map((room) => (
+          <ProfileCard
+            key={room._id}
+            name={getChatroomDisplayName(room, currentUserId)}
+            imgSrc='profile-img.webp'
+            selected={selectedRoom === room._id}
+            onClick={() => onClick(room._id)}
+            message={room.lastMessage?.message}
+            time='2:30'
+            unreadCount={5}
+            isStarred={true}
+            isRead={false}
+          />
         ))}
     </>
   )

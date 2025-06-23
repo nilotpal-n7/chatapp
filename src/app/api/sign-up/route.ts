@@ -2,11 +2,11 @@ import UserModel from "@/models/user";
 import dbConnect from "@/server/db";
 import bcrypt from "bcryptjs";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
     await dbConnect()
 
     try {
-        const { firstName, lastName, email, password } = await request.json()
+        const { firstName, lastName, email, password } = await req.json()
 
         const user = await UserModel.findOne({email})
         if(user) {
@@ -38,8 +38,8 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error registering user', error)
         return Response.json({
-                success: false,
-                message: "Error registering user"
+            success: false,
+            message: "Error registering user"
         }, {status: 500})
     }
 }

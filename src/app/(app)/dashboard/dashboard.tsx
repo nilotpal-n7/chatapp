@@ -2,7 +2,11 @@
 
 import ChatList from '@/components/site/chatList'
 import ChatWindow from '@/components/site/chatWindow'
+import SearchPanel from '@/components/site/searchPanel'
 import Sidebar from '@/components/site/sidebar'
+import { fetchChatrooms } from '@/store/chatroomSlice'
+import { useAppDispatch } from '@/store/hooks'
+import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import styled from 'styled-components'
 
@@ -10,6 +14,15 @@ function Dashboard() {
   useEffect(() => {
     fetch('/api/socket');
   }, []);
+
+  const dispatch = useAppDispatch();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.user._id) {
+      dispatch(fetchChatrooms(session.user._id));
+    }
+  }, [session]);
 
   return (
     <Container>
@@ -19,10 +32,7 @@ function Dashboard() {
 
       <RightPanel>
         <InnerLeft>
-          <SearchPanel>
-            <SearchIcon src={'search.svg'}/>
-            <SearchInput type='text' placeholder='Search'/>
-          </SearchPanel>
+          <SearchPanel />
           <ChatList />
         </InnerLeft>
 
@@ -87,31 +97,4 @@ const InnerRight = styled.div`
   flex: 3;
   padding: 30px;
   padding-bottom: 10px;
-`
-const SearchPanel = styled.div`
-  background-color: #2e333d;
-  height: 50px;
-  width: 100%;
-  border-radius: 20px;
-  margin: 30px 10px;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  padding-right: 10px;
-`
-const SearchIcon = styled.img`
-  height: 30px;
-  width: 30px;
-`
-const SearchInput = styled.input`
-  flex: 1;
-  height: 100%;
-  all: unset;
-  margin-left: 10px;
-  color: rgb(175, 175, 175);
-  font-weight: 500;
-  white-space: nowrap;         // Prevent text wrapping
-  overflow: hidden;            // Hide overflow text
-  text-overflow: ellipsis;     // Show ... when text overflows
-  min-width: 0;
 `
