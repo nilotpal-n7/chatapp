@@ -1,7 +1,7 @@
 // src/lib/qr-token-store.ts
-const qrTokens = new Map<string, { userId: string; expiry: number }>();
+const qrTokens = new Map<string, { userId: string | undefined; expiry: number }>();
 
-export function storeToken(userId: string) {
+export function storeToken(userId: string | undefined) {
   const tokenId = crypto.randomUUID();
   const expiry = Date.now() + 2 * 60 * 1000; // 2 minutes
   qrTokens.set(tokenId, { userId, expiry });
