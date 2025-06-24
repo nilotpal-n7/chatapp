@@ -1,9 +1,10 @@
 // /models/chatroom.ts
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 import { User } from './user';
 import { Message } from './message';
 
 export interface Chatroom extends Document {
+    _id: Types.ObjectId;
     name: string;
     participants: User[];
     isGroup: boolean;
