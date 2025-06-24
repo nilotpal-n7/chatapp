@@ -11,7 +11,6 @@ function ChatList() {
   const dispatch = useAppDispatch()
   const chatrooms = useAppSelector((state) => state.chatroom.chatrooms);
   const {data: session} = useSession()
-  const currentUserId = session?.user._id;
   const roomId = useAppSelector((state) => state.chatroom.roomId);
 
   const onClick = (roomId: string) => {
@@ -23,11 +22,11 @@ function ChatList() {
     <Container>
         {Array.isArray(chatrooms) && chatrooms.map((room) => (
           <ProfileCard
-            key={room._id}
-            name={getChatroomDisplayName(room, currentUserId)}
+            key={room._id.toString()}
+            name={getChatroomDisplayName(room, session?.user._id)}
             imgSrc='profile-img.webp'
-            selected={roomId === room._id}
-            onClick={() => onClick(room._id)}
+            selected={roomId === room._id.toString()}
+            onClick={() => onClick(room._id.toString())}
             message={room.lastMessage?.message}
             time='2:30'
             unreadCount={5}

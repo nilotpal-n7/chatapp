@@ -11,12 +11,12 @@ import { useRoomSocket } from '@/hooks/use-room-socket';
 function ChatWindow() {
     const roomId = useAppSelector(state => state.chatroom.roomId);
     const chatrooms = useAppSelector(state => state.chatroom.chatrooms);
-    const currentRoom = chatrooms.find(room => room._id === roomId);
+    const currentRoom = chatrooms.find(room => room._id.toString() === roomId);
     const {socket} = useSocket()
     const { onlineUsers } = useRoomSocket(socket, roomId);
     const {data: session} = useSession()
     const onlineCount = currentRoom?.participants.filter(p =>
-        onlineUsers.includes(p._id)
+        onlineUsers.includes(p._id.toString())
     ).length;
 
   return (

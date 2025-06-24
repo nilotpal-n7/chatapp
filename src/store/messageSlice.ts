@@ -1,6 +1,5 @@
 import { Message } from "@/models/message";
 import { ApiResponse } from "@/types/ApiResponse";
-import { ChatMessage } from "@/types/ChatMessage";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -21,7 +20,7 @@ export const sendMessage = createAsyncThunk(
 )
 
 interface MessageState {
-    messages: ChatMessage[]
+    messages: Message[]
     loading: boolean,
     error: string | null,
 }
@@ -40,7 +39,7 @@ const messageSlice = createSlice({
             state.messages = []
         },
 
-        addMessage: (state, action: PayloadAction<ChatMessage>) => {
+        addMessage: (state, action: PayloadAction<Message>) => {
             state.messages.push(action.payload);
         },
      },

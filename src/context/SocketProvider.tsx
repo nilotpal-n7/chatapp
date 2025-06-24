@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 
 const SocketContext = createContext<{ socket: Socket | null }>({ socket: null });
 
-export const SocketProvider = ({ children }) => {
+export const SocketProvider = ({children}: { children: React.ReactNode }) => {
   const socketRef = useRef<Socket | null>(null);
   const { data: session } = useSession();
 

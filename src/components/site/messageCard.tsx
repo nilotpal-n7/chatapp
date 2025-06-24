@@ -8,11 +8,11 @@ function MessageCard({
   scrollDir,
   text,
   
-}) {
+}: {mine: boolean, scrollDir: string, text: string}) {
   const ref = useRef(null);
   const inView = useInView(ref, {
     margin: '0px 0px -50px 0px', // key: watch element exiting the top
-    triggerOnce: false,
+    //triggerOnce: false,
   });
   const controls = useAnimation();
 

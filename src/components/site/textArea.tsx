@@ -27,7 +27,7 @@ function TextArea() {
 
     try {
       const savedMessage = await dispatch(sendMessage({ roomId, message })).unwrap();
-      dispatch(updateLastMessage({ roomId, message: savedMessage }));
+      dispatch(updateLastMessage({ message: savedMessage }));
 
       socket?.emit('send-message', {
         roomId,

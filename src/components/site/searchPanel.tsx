@@ -40,8 +40,8 @@ function SearchPanel() {
       const room = await dispatch(createChatroom({userId: user._id, isGroup: false, name: 'Chatroom'})).unwrap()
 
       await dispatch(fetchChatrooms(session?.user._id));
-      dispatch(setRoomId(room._id));
-      await dispatch(fetchMessages(room._id));
+      dispatch(setRoomId(room._id.toString()));
+      await dispatch(fetchMessages(room._id.toString()));
 
       setSearchText('');
       setResults([]);
@@ -70,7 +70,7 @@ function SearchPanel() {
         <ResultsBox>
           {results.map((user) => (
             <ResultRow key={user._id} onClick={() => handleUserClick(user)}>
-              <Avatar src={user.image || 'profile-img.webp'} />
+              <Avatar src={'profile-img.webp'} />
               <Info>
                 <Name>{user.firstName + " " + user.lastName || 'Unnamed'}</Name>
                 <Email>{user.email}</Email>

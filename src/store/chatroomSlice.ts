@@ -6,7 +6,7 @@ import { Message } from '@/models/message';
 
 export const fetchChatrooms = createAsyncThunk(
   'chatroom/fetch-chatrooms',
-  async (userId: string) => {
+  async (userId: string | undefined) => {
     const response = await axios.get('/api/fetch-chatrooms', { params: { userId } });
     return response.data.rooms as Chatroom[];
   }
@@ -43,7 +43,7 @@ const chatroomSlice = createSlice({
     },
 
     updateLastMessage: (state, action: PayloadAction<{ message: Message }>) => {
-      const room = state.chatrooms.find(r => r._id === action.payload.message.roomId);
+      const room = state.chatrooms.find(r => r._id.toString() === action.payload.message.roomId.toString());
       if (room) {
         room.lastMessage = action.payload.message;
       }
