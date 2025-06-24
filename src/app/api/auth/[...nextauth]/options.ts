@@ -1,3 +1,5 @@
+// app/api/auth/[...nextauth]/options.ts
+
 import dbConnect from "@/server/db";
 import UserModel from "@/models/user";
 import bcrypt from "bcryptjs";
@@ -5,7 +7,7 @@ import { NextAuthOptions, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { User } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { getTokenData } from '@/app/api/generate-qr-token/route' // ✅ QR token memory store
+import { getTokenData } from '@/lib/qr-token-store' // ✅ QR token memory store
 
 type CredentialsType = {
   email?: string;
