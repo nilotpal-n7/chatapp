@@ -1,4 +1,5 @@
 // /app/api/decode-qr/route.ts
+import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
@@ -20,13 +21,9 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const response = await fetch('https://api.qrserver.com/v1/read-qr-code/', {
-      method: 'POST',
-      body: formData,
-    });
+    const res = await axios.post('https://api.qrserver.com/v1/read-qr-code/', {formData});
 
-    const data = await response.json();
-    const text = data?.[0]?.symbol?.[0]?.data;
+    const text = res.data?.[0]?.symbol?.[0]?.data;
 
     if (text) {
       return NextResponse.json({ success: true, data: text });

@@ -3,11 +3,12 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Chatroom } from '@/models/chatroom';
 import { Message } from '@/models/message';
+import { ApiResponse } from '@/types/ApiResponse';
 
 export const fetchChatrooms = createAsyncThunk(
   'chatroom/fetch-chatrooms',
   async (userId: string | undefined) => {
-    const response = await axios.get('/api/fetch-chatrooms', { params: { userId } });
+    const response = await axios.get<ApiResponse>('/api/fetch-chatrooms', { params: { userId } });
     return response.data.rooms as Chatroom[];
   }
 );
@@ -15,7 +16,7 @@ export const fetchChatrooms = createAsyncThunk(
 export const createChatroom = createAsyncThunk(
   'chatroom/create-chatroom',
   async ({userId, isGroup, name}: {userId: string, isGroup: boolean, name: string}) => {
-    const response = await axios.post('/api/create-chatroom', {userId, isGroup, name})
+    const response = await axios.post<ApiResponse>('/api/create-chatroom', {userId, isGroup, name})
     return response.data.room as Chatroom
   }
 )

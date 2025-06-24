@@ -77,7 +77,7 @@ export default function SignIn() {
   const onCodeSubmit = async () => {
     setIsSendingCode(true)
     try {
-      const response = await axios.post('/api/send-code', {
+      const response = await axios.post<ApiResponse>('/api/send-code', {
         email: watch('email')
       })
 

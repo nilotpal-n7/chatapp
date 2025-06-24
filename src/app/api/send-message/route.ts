@@ -5,6 +5,7 @@ import MessageModel from "@/models/message";
 import mongoose from "mongoose";
 import ChatroomModel from "@/models/chatroom";
 import { NextRequest, NextResponse } from "next/server";
+import UserModel from "@/models/user";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,10 +28,18 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = session.user._id;
+    const user = await UserModel.findById(userId)
+
+    if(!user) {
+      return NextResponse.json({
+        success: false,
+        message: 'User not found'
+      }, {status: 400})
+    }
 
     // Validate user is part of the room
     const chatroom = await ChatroomModel.findById(roomId);
-    if (!chatroom || !chatroom.participants.includes(userId)) {
+    if (!chatroom || !chatroom.participants.includes(user)) {
       return NextResponse.json({
         success: false,
         message: "User is not part of this chatroom",
@@ -45,7 +54,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Update lastMessage in chatroom
-    chatroom.lastMessage = newMessage._id;
+    chatroom.lastMessage = newMessage;
     await chatroom.save();
 
     return NextResponse.json({

@@ -5,17 +5,12 @@ import { useAppDispatch } from '@/store/hooks';
 import { createChatroom, fetchChatrooms, setRoomId } from '@/store/chatroomSlice';
 import { fetchMessages } from '@/store/messageSlice';
 import axios from 'axios';
-
-interface UserResult {
-  _id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import { ApiResponse } from '@/types/ApiResponse';
+import { User } from '@/models/user';
 
 function SearchPanel() {
   const [searchText, setSearchText] = useState('');
-  const [results, setResults] = useState<UserResult[]>([]);
+  const [results, setResults] = useState<User[]>([]);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
@@ -24,7 +19,7 @@ function SearchPanel() {
   useEffect(() => {
     const delay = setTimeout(() => {
       if (searchText.length > 1) {
-        axios.get(`/api/search-users?query=${searchText}`)
+        axios.get<ApiResponse>(`/api/search-users?query=${searchText}`)
           .then((res) => setResults(res.data.users || []))
           .catch(() => setResults([]));
       } else {
@@ -35,9 +30,9 @@ function SearchPanel() {
     return () => clearTimeout(delay);
   }, [searchText]);
 
-  const handleUserClick = async (user: UserResult) => {
+  const handleUserClick = async (user: User) => {
     try {
-      const room = await dispatch(createChatroom({userId: user._id, isGroup: false, name: 'Chatroom'})).unwrap()
+      const room = await dispatch(createChatroom({userId: user._id.toString(), isGroup: false, name: 'Chatroom'})).unwrap()
 
       await dispatch(fetchChatrooms(session?.user._id));
       dispatch(setRoomId(room._id.toString()));
@@ -69,7 +64,7 @@ function SearchPanel() {
       {isFocused && results.length > 0 && (
         <ResultsBox>
           {results.map((user) => (
-            <ResultRow key={user._id} onClick={() => handleUserClick(user)}>
+            <ResultRow key={user._id.toString()} onClick={() => handleUserClick(user)}>
               <Avatar src={'profile-img.webp'} />
               <Info>
                 <Name>{user.firstName + " " + user.lastName || 'Unnamed'}</Name>
