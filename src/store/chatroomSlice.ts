@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Chatroom } from '@/models/chatroom';
 import { Message } from '@/models/message';
 import { ApiResponse } from '@/types/ApiResponse';
+import { PlainChatroom, toPlainChatroom } from '@/helpers/pain-chatroom';
+import { toPlainMessage } from '@/helpers/plain-message';
 
 export const fetchChatrooms = createAsyncThunk(
   'chatroom/fetch-chatrooms',
@@ -22,7 +24,7 @@ export const createChatroom = createAsyncThunk(
 )
 
 interface ChatroomState {
-  chatrooms: Chatroom[];
+  chatrooms: PlainChatroom[];
   roomId: string,
   loading: boolean;
   error: string | null;
@@ -46,7 +48,7 @@ const chatroomSlice = createSlice({
     updateLastMessage: (state, action: PayloadAction<{ message: Message }>) => {
       const room = state.chatrooms.find(r => r._id.toString() === action.payload.message.roomId.toString());
       if (room) {
-        room.lastMessage = action.payload.message;
+        room.lastMessage = toPlainMessage(action.payload.message);
       }
     }
   },
@@ -59,7 +61,7 @@ const chatroomSlice = createSlice({
       })
       .addCase(fetchChatrooms.fulfilled, (state, action: PayloadAction<Chatroom[]>) => {
         state.loading = false;
-        state.chatrooms = action.payload;
+        state.chatrooms = action.payload.map(room => toPlainChatroom(room));
       })
       .addCase(fetchChatrooms.rejected, (state, action) => {
         state.loading = false;
@@ -71,7 +73,7 @@ const chatroomSlice = createSlice({
       })
       .addCase(createChatroom.fulfilled, (state, action: PayloadAction<Chatroom>) => {
         state.loading = false;
-        state.chatrooms.push(action.payload);
+        state.chatrooms.push(toPlainChatroom(action.payload));
       })
       .addCase(createChatroom.rejected, (state, action) => {
         state.loading = false;

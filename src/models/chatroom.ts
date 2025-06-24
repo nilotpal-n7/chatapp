@@ -10,6 +10,8 @@ export interface Chatroom extends Document {
     isGroup: boolean;
     createdBy: User;
     lastMessage: Message;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const chatroomSchema: Schema<Chatroom> = new Schema({

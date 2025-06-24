@@ -18,7 +18,7 @@ function ProfileCard({
   isRead,
   selected,
   onClick,
-}: {imgSrc: string, name: string, message: string, time: string, unreadCount: number, isStarred: boolean, isRead: boolean, selected: boolean, onClick: () => void}) {
+}: {imgSrc: string, name: string, message: string | undefined, time: string, unreadCount: number, isStarred: boolean, isRead: boolean, selected: boolean, onClick: () => void}) {
   return (
     <Container onClick={onClick} selected={selected}>
       <ProfileImg src={imgSrc} />

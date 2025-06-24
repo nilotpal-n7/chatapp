@@ -9,6 +9,8 @@ export interface User extends Document {
     blockedUsers: User[];
     verifyCode: string;
     verifyCodeExpiry: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const UserSchema: Schema<User> = new Schema({

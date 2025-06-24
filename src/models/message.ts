@@ -14,6 +14,8 @@ export interface Message extends Document {
     emoji: string;
     watchedBy: number;
     sentTime: Date;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export const MessageSchema: Schema<Message> = new Schema({

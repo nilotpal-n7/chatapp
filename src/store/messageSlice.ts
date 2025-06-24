@@ -1,3 +1,4 @@
+import { PlainMessage, toPlainMessage } from "@/helpers/plain-message";
 import { Message } from "@/models/message";
 import { ApiResponse } from "@/types/ApiResponse";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -20,7 +21,7 @@ export const sendMessage = createAsyncThunk(
 )
 
 interface MessageState {
-    messages: Message[]
+    messages: PlainMessage[]
     loading: boolean,
     error: string | null,
 }
@@ -40,9 +41,10 @@ const messageSlice = createSlice({
         },
 
         addMessage: (state, action: PayloadAction<Message>) => {
-            state.messages.push(action.payload);
+            state.messages.push(toPlainMessage(action.payload));
         },
      },
+     
 
      extraReducers: (builder) => {
         builder
@@ -53,7 +55,7 @@ const messageSlice = createSlice({
         })
         .addCase(fetchMessages.fulfilled, (state, action) => {
             state.loading = false
-            state.messages = action.payload
+            state.messages = action.payload.map(doc => toPlainMessage(doc))
         })
         .addCase(fetchMessages.rejected, (state, action) => {
             state.loading = false
@@ -65,7 +67,7 @@ const messageSlice = createSlice({
         })
         .addCase(sendMessage.fulfilled, (state, action) => {
           state.loading = false;
-          state.messages.push(action.payload);
+          state.messages.push(toPlainMessage(action.payload));
         })
         .addCase(sendMessage.rejected, (state, action) => {
           state.loading = false;
