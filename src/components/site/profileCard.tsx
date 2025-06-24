@@ -1,6 +1,13 @@
 import React from 'react'
 import styled from 'styled-components'
 
+interface ContainerProps {
+  selected: boolean;
+}
+interface MessageProps {
+  isRead: boolean;
+}
+
 function ProfileCard({
   imgSrc,
   name,
@@ -34,7 +41,7 @@ function ProfileCard({
 
 export default ProfileCard
 
-const Container = styled.div`
+const Container = styled.div<ContainerProps>`
   background-color: ${({ selected }) => (selected ? '#2e333d' : '')};
   height: 70px;
   width: 100%;
@@ -102,7 +109,7 @@ const Time = styled.div`
   max-width: 60px;
 `
 
-const Message = styled.div`
+const Message = styled.div<MessageProps>`
   color: ${({ isRead }) => (isRead ? '#aaa' : 'white')};
   font-size: 14px;
   font-weight: ${({ isRead }) => (isRead ? 400 : 600)};
