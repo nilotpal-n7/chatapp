@@ -46,6 +46,7 @@ export const authOptions: NextAuthOptions = {
           const user = await UserModel.findById(userId).lean();
           if (!user) throw new Error("User not found");
 
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { password: _, verifyCode: __, verifyCodeExpiry: ___, ...safeUser } = user;
           return safeUser as User;
         }
@@ -62,6 +63,7 @@ export const authOptions: NextAuthOptions = {
         if (!isCodeCorrect) throw new Error("Verification code mismatch.");
         if (isCodeExpired) throw new Error("Code has expired.");
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { password: _, verifyCode: __, verifyCodeExpiry: ___, ...safeUser } = user;
         return safeUser as User;
       }
