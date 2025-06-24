@@ -1,6 +1,7 @@
 // /api/verify-qr-token.ts
 import { NextResponse } from 'next/server';
-import { getTokenData } from '../generate-qr-token/route';
+import { getTokenData } from '@/lib/qr-token-store';
+
 
 export async function POST(req: Request) {
   const { tokenId } = await req.json();
