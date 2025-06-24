@@ -4,8 +4,9 @@ import ChatList from '@/components/site/chatList'
 import ChatWindow from '@/components/site/chatWindow'
 import SearchPanel from '@/components/site/searchPanel'
 import Sidebar from '@/components/site/sidebar'
-import { fetchChatrooms } from '@/store/chatroomSlice'
-import { useAppDispatch } from '@/store/hooks'
+import { useSocket } from '@/hooks/use-socket'
+import { fetchChatrooms, updateLastMessage } from '@/store/chatroomSlice'
+import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import styled from 'styled-components'
@@ -13,12 +14,41 @@ import styled from 'styled-components'
 function Dashboard() {
   const dispatch = useAppDispatch();
   const { data: session } = useSession();
+  const { socket } = useSocket();
 
   useEffect(() => {
-    if (session?.user._id) {
-      dispatch(fetchChatrooms(session.user._id));
+    async function fetch() {
+      if (session?.user._id) {
+        await dispatch(fetchChatrooms(session.user._id));
+      }
     }
+  
+    fetch()
   }, [session]);
+
+  const chatrooms = useAppSelector((state) => state.chatroom.chatrooms);
+
+  useEffect(() => {
+    if (!socket || !chatrooms?.length) return;
+
+    chatrooms.forEach((room) => {
+      socket.emit('join-room', room._id);
+      console.log('📥 Auto joined room:', room._id);
+    });
+  }, [socket, chatrooms]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMessage = (message) => {
+      console.log('📩 Global receive-message:', message);
+      dispatch(updateLastMessage({ message }));
+    };
+
+    socket.on('receive-message', handleMessage);
+    return () => socket.off('receive-message', handleMessage);
+  }, [socket]);
+
 
   return (
     <Container>
@@ -45,6 +75,8 @@ export default Dashboard
 const Container = styled.div`
   height: 100vh;
   width: 100vw;
+  min-height: 500px;
+
   background-color: #131313;
   display: flex;
   overflow-y: hidden;
@@ -75,6 +107,7 @@ const Container = styled.div`
 const LeftPanel = styled.div`
   height: 100%;
   width: 70px;
+  
 `
 const RightPanel = styled.div`
   background-color: #202329;
@@ -86,11 +119,10 @@ const RightPanel = styled.div`
 `
 const InnerLeft = styled.div`
   height: 100%;
-  flex: 1;
 `
 const InnerRight = styled.div`
   height: 100%;
-  flex: 3;
+  flex: 1;
   padding: 30px;
   padding-bottom: 10px;
 `

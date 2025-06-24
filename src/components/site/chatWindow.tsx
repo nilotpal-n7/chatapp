@@ -6,17 +6,18 @@ import { useAppSelector } from '@/store/hooks';
 import { getChatroomDisplayName } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { useSocket } from '@/hooks/use-socket';
+import { useRoomSocket } from '@/hooks/use-room-socket';
 
 function ChatWindow() {
     const roomId = useAppSelector(state => state.chatroom.roomId);
     const chatrooms = useAppSelector(state => state.chatroom.chatrooms);
     const currentRoom = chatrooms.find(room => room._id === roomId);
-    const { socket, onlineUsers } = useSocket(roomId);
+    const {socket} = useSocket()
+    const { onlineUsers } = useRoomSocket(socket, roomId);
     const {data: session} = useSession()
     const onlineCount = currentRoom?.participants.filter(p =>
         onlineUsers.includes(p._id)
     ).length;
-
 
   return (
     <Container>

@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSession } from 'next-auth/react';
 
-export function useSocket(roomId: string | null) {
+export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
   const [socketReady, setSocketReady] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const { data: session } = useSession();
 
   // Initialize socket
@@ -15,6 +14,9 @@ export function useSocket(roomId: string | null) {
     });
 
     socketRef.current = socket;
+    socket.onAny((event, ...args) => {
+      console.log('📡 SOCKET EVENT:', event, args);
+    });
 
     socket.on('connect', () => {
       console.log('✅ Socket connected:', socket.id);
@@ -25,22 +27,10 @@ export function useSocket(roomId: string | null) {
       }
     });
 
-    socket.on('room-online-users', (users: string[]) => {
-      setOnlineUsers(users); // Track online users in current room
-    });
-
     return () => {
       socket.disconnect();
     };
   }, [session?.user?._id]);
 
-  // Join chatroom
-  useEffect(() => {
-    if (socketRef.current && roomId) {
-      socketRef.current.emit('join-room', roomId);
-      console.log(`📥 Joined room: ${roomId}`);
-    }
-  }, [roomId]);
-
-  return { socket: socketRef.current, onlineUsers };
+  return { socket: socketRef.current, socketReady };
 }

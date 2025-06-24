@@ -10,7 +10,7 @@ function TextArea() {
   const [message, setMessage] = useState('');
   const roomId = useAppSelector((state) => state.chatroom.roomId);
   const dispatch = useAppDispatch();
-  const {socket} = useSocket(roomId);
+  const {socket} = useSocket();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

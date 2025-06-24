@@ -16,9 +16,33 @@ export async function GET(req: NextRequest) {
             }, { status: 400 });
         }
 
-        const users = await User.find({
-          email: { $regex: query, $options: 'i' },
-        }).select('_id email firstName lastName');
+        const users = await User.aggregate([
+          {
+            $addFields: {
+              fullNameWithSpace: { $concat: ['$firstName', ' ', '$lastName'] },
+              fullNameNoSpace: { $concat: ['$firstName', '$lastName'] },
+            },
+          },
+          {
+            $match: {
+              $or: [
+                { email: { $regex: query, $options: 'i' } },
+                { firstName: { $regex: query, $options: 'i' } },
+                { lastName: { $regex: query, $options: 'i' } },
+                { fullNameWithSpace: { $regex: query, $options: 'i' } },
+                { fullNameNoSpace: { $regex: query, $options: 'i' } },
+              ],
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              email: 1,
+              firstName: 1,
+              lastName: 1,
+            },
+          },
+        ]);
 
         return NextResponse.json({
             success: true,

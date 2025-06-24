@@ -42,8 +42,8 @@ const chatroomSlice = createSlice({
       state.roomId = action.payload
     },
 
-    updateLastMessage: (state, action: PayloadAction<{ roomId: string, message: Message }>) => {
-      const room = state.chatrooms.find(r => r._id === action.payload.roomId);
+    updateLastMessage: (state, action: PayloadAction<{ message: Message }>) => {
+      const room = state.chatrooms.find(r => r._id === action.payload.message.roomId);
       if (room) {
         room.lastMessage = action.payload.message;
       }

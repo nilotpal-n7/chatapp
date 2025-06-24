@@ -14,26 +14,27 @@ function ChatArea() {
   const [isAtBottom, setIsAtBottom] = useState(true)
 
   const roomId = useAppSelector((state) => state.chatroom.roomId);
-  const {socket} = useSocket(roomId);
+  const {socket} = useSocket();
   const dispatch = useAppDispatch();
+  const { data: session } = useSession();
+  const messages = useAppSelector((state) => state.message.messages);
 
   useEffect(() => {
     if (!socket || !roomId) return;
     socket.emit('join-room', roomId);
 
-    socket.on('receive-message', (message) => {
-      console.log('💬 Message received via socket:', message);
+    const handleMessage = (message) => {
+      dispatch(updateLastMessage({ message }));
+
+      if (message.roomId !== roomId) return;
       if (message.senderId !== session?.user?._id) {
         dispatch(addMessage(message));
-      } // Add to Redux store
-      dispatch(updateLastMessage({ roomId, message }));
-    });
+      }
+    };
 
-    return () => socket.off('receive-message');
-  }, [socket, roomId]);
-
-  const { data: session } = useSession();
-  const messages = useAppSelector((state) => state.message.messages);
+    socket.on('receive-message', handleMessage);
+    return () => socket.off('receive-message', handleMessage);
+  }, [socket, roomId, session?.user?._id]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -77,7 +78,7 @@ function ChatArea() {
     <Container ref={containerRef}>
       {messages.map((msg) => (
         <MessageCard
-          key={msg.id}
+          key={msg._id}
           mine={msg.senderId === session?.user?._id}
           scrollDir={scrollDir}
           text={msg.message}
@@ -91,6 +92,7 @@ export default ChatArea;
 
 const Container = styled.div`
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 20px;
   display: flex;
