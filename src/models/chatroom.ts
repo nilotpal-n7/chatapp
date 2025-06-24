@@ -9,7 +9,7 @@ export interface Chatroom extends Document {
     participants: User[];
     isGroup: boolean;
     createdBy: User;
-    lastMessage?: Message;
+    lastMessage: Message;
 }
 
 const chatroomSchema: Schema<Chatroom> = new Schema({
