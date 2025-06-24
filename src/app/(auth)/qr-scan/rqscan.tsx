@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner';
-import { BrowserQRCodeReader } from '@zxing/browser';
+//import { BrowserQRCodeReader } from '@zxing/browser';
 import jsQR from 'jsqr';
 
 function ScanQRPage() {
