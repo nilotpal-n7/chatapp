@@ -1,8 +1,6 @@
 // /api/verify-qr-token.ts
 import { NextResponse } from 'next/server';
 import { getTokenData } from '../generate-qr-token/route';
-import { authOptions } from '../auth/[...nextauth]/options';
-import { getServerSession } from 'next-auth';
 
 export async function POST(req: Request) {
   const { tokenId } = await req.json();

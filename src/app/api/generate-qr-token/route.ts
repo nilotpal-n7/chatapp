@@ -6,7 +6,7 @@ import { authOptions } from '../auth/[...nextauth]/options';
 
 const qrTokens = new Map(); // temporary in-memory store
 
-export async function POST(req: Request) {
+export async function POST() {
   await dbConnect();
 
   const session = await getServerSession(authOptions)

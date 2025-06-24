@@ -21,7 +21,7 @@ export default function SignUp() {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    // formState: { errors }
   } = useForm<SignUpType>({
 
     resolver: zodResolver(signUpSchema),

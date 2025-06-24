@@ -25,7 +25,7 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    // formState: { errors },
     watch
   } = useForm<SignInType>({
 
