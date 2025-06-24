@@ -33,7 +33,9 @@ function ChatArea() {
     };
 
     socket.on('receive-message', handleMessage);
-    return () => socket.off('receive-message', handleMessage);
+    return () => {
+      socket.off('receive-message', handleMessage)
+    }
   }, [socket, roomId, session?.user?._id]);
 
   useEffect(() => {

@@ -46,7 +46,9 @@ function Dashboard() {
     };
 
     socket.on('receive-message', handleMessage);
-    return () => socket.off('receive-message', handleMessage);
+    return () => {
+      socket.off('receive-message', handleMessage)
+    };
   }, [socket]);
 
 

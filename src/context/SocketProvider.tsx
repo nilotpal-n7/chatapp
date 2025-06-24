@@ -23,7 +23,7 @@ export const SocketProvider = ({ children }) => {
       }
     });
 
-    return () => socket.disconnect();
+    return () => {socket.disconnect()}
   }, [session?.user?._id]);
 
   return (
