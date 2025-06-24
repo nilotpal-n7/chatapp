@@ -1,12 +1,11 @@
 import { Chatroom } from '@/models/chatroom';
 import { PlainMessage } from './plain-message';
 import { toPlainMessage } from './plain-message';
-import { PlainUser, toPlainUser } from './plain-user';
 
 export interface PlainChatroom {
   _id: string;
   name: string;
-  participants: PlainUser[];
+  participants: string[];
   isGroup: boolean;
   createdBy: string;
   lastMessage: PlainMessage | undefined;
@@ -18,7 +17,7 @@ export function toPlainChatroom(chatroom: Chatroom): PlainChatroom {
   return {
     _id: chatroom._id.toString(),
     name: chatroom.name,
-    participants: chatroom.participants.map(p => toPlainUser(p)),
+    participants: chatroom.participants.map(p => p._id.toString()),
     isGroup: chatroom.isGroup,
     createdBy: typeof chatroom.createdBy === 'string'
       ? chatroom.createdBy

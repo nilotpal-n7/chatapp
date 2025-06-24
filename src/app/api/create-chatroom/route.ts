@@ -3,6 +3,7 @@ import dbConnect from '@/server/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../auth/[...nextauth]/options';
 import { NextRequest, NextResponse } from 'next/server';
+import UserModel from '@/models/user';
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,8 +40,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const other = await UserModel.findById(userId)
+
     const newRoom = await ChatroomModel.create({
-      name,
+      name: isGroup ? name : `${other?.firstName || ''} ${other?.lastName || ''}`,
       participants: userIds,
       isGroup,
       createdBy: userIds[0],

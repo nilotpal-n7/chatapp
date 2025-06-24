@@ -3,14 +3,11 @@ import ProfileCard from './profileCard'
 import { fetchMessages } from '@/store/messageSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { setRoomId } from '@/store/chatroomSlice'
-import { getChatroomDisplayName } from '@/lib/utils'
-import { useSession } from 'next-auth/react'
 import styled from 'styled-components'
 
 function ChatList() {
   const dispatch = useAppDispatch()
   const chatrooms = useAppSelector((state) => state.chatroom.chatrooms);
-  const {data: session} = useSession()
   const roomId = useAppSelector((state) => state.chatroom.roomId);
 
   const onClick = (roomId: string) => {
@@ -23,7 +20,7 @@ function ChatList() {
         {Array.isArray(chatrooms) && chatrooms.map((room) => (
           <ProfileCard
             key={room._id.toString()}
-            name={getChatroomDisplayName(room, session?.user._id)}
+            name={room.name}
             imgSrc='profile-img.webp'
             selected={roomId === room._id.toString()}
             onClick={() => onClick(room._id.toString())}

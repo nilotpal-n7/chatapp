@@ -3,7 +3,6 @@ import styled from 'styled-components'
 import ChatArea from './chatArea'
 import TextArea from './textArea'
 import { useAppSelector } from '@/store/hooks';
-import { getChatroomDisplayName } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 import { useSocket } from '@/hooks/use-socket';
 import { useRoomSocket } from '@/hooks/use-room-socket';
@@ -16,7 +15,7 @@ function ChatWindow() {
     const { onlineUsers } = useRoomSocket(socket, roomId);
     const {data: session} = useSession()
     const onlineCount = currentRoom?.participants.filter(p =>
-        onlineUsers.includes(p._id.toString())
+        onlineUsers.includes(p)
     ).length;
 
   return (
@@ -27,7 +26,7 @@ function ChatWindow() {
                   {currentRoom?.isGroup
                     ? currentRoom.name
                     : session?.user?._id && currentRoom
-                      ? getChatroomDisplayName(currentRoom, session.user._id)
+                      ? currentRoom.name
                       : 'Loading...'}
                 </Name>
 
