@@ -1,14 +1,15 @@
 import { PlainMessage, toPlainMessage } from "@/helpers/plain-message";
 import { Message } from "@/models/message";
 import { ApiResponse } from "@/types/ApiResponse";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "axios";
 
 export const fetchMessages = createAsyncThunk(
     'message/fetch-messages',
     async (roomId: string) => {
         const response = await axios.get<ApiResponse>('/api/fetch-messages', {params: {roomId}})
-        return response.data.todos as Message[]
+        const res = response.data.todos as Message[]
+        return res.map(m => toPlainMessage(m))
     }
 )
 
@@ -16,7 +17,8 @@ export const sendMessage = createAsyncThunk(
     'message/send-message',
     async ({roomId, message}: {roomId: string, message: string}) => {
         const response = await axios.post<ApiResponse>('/api/send-message', {roomId, message})
-        return response.data.todo as Message
+        const res = response.data.todo as Message
+        return toPlainMessage(res)
     }
 )
 
@@ -40,8 +42,8 @@ const messageSlice = createSlice({
             state.messages = []
         },
 
-        addMessage: (state, action: PayloadAction<Message>) => {
-            state.messages.push(toPlainMessage(action.payload));
+        addMessage: (state, action) => {
+            state.messages.push(action.payload);
         },
      },
      
@@ -49,13 +51,13 @@ const messageSlice = createSlice({
      extraReducers: (builder) => {
         builder
 
-        .addCase(fetchMessages.pending, state => {
+        .addCase(fetchMessages.pending, (state) => {
             state.loading = true
             state.error = null
         })
         .addCase(fetchMessages.fulfilled, (state, action) => {
             state.loading = false
-            state.messages = action.payload.map(doc => toPlainMessage(doc))
+            state.messages = action.payload
         })
         .addCase(fetchMessages.rejected, (state, action) => {
             state.loading = false
@@ -67,7 +69,7 @@ const messageSlice = createSlice({
         })
         .addCase(sendMessage.fulfilled, (state, action) => {
           state.loading = false;
-          state.messages.push(toPlainMessage(action.payload));
+          state.messages.push(action.payload);
         })
         .addCase(sendMessage.rejected, (state, action) => {
           state.loading = false;

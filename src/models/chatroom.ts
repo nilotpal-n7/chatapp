@@ -2,11 +2,12 @@
 import mongoose, { Schema, Types } from 'mongoose';
 import { User } from './user';
 import { Message } from './message';
+import { DUser } from '@/helpers/dim-user';
 
 export interface Chatroom extends Document {
     _id: Types.ObjectId;
     name: string;
-    participants: User[];
+    participants: DUser[];
     isGroup: boolean;
     createdBy: User;
     lastMessage: Message;

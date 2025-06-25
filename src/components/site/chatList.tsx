@@ -19,11 +19,11 @@ function ChatList() {
     <Container>
         {Array.isArray(chatrooms) && chatrooms.map((room) => (
           <ProfileCard
-            key={room._id.toString()}
+            key={room._id}
             name={room.name}
             imgSrc='profile-img.webp'
-            selected={roomId === room._id.toString()}
-            onClick={() => onClick(room._id.toString())}
+            selected={roomId === room._id}
+            onClick={() => onClick(room._id)}
             message={room.lastMessage?.message}
             time='2:30'
             unreadCount={5}

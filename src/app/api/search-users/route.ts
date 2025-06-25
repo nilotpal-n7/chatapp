@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     try {
         await dbConnect();
         const { searchParams } = new URL(req.url);
-        const query = searchParams.get('query');
+        const query = searchParams.get('searchText');
 
         if (!query) {
             return NextResponse.json({

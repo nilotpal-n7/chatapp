@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: false,
         message: "Not authorized",
-      }, { status: 401 });
+      }, { status: 403 });
     }
 
     const userId = session.user._id;
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // Validate user is part of the room
     const chatroom = await ChatroomModel.findById(roomId);
-    if (!chatroom || !chatroom.participants.includes(user)) {
+    if (!chatroom || !chatroom.participants.some(p => p.toString() === userId)) {
       return NextResponse.json({
         success: false,
         message: "User is not part of this chatroom",

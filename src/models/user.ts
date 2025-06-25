@@ -1,3 +1,4 @@
+import { DUser } from "@/helpers/dim-user";
 import mongoose, { Document, Schema, Types } from "mongoose";
 
 export interface User extends Document {
@@ -6,7 +7,7 @@ export interface User extends Document {
     lastName: string;
     email: string;
     password: string;
-    blockedUsers: User[];
+    blockedUsers: DUser[];
     verifyCode: string;
     verifyCodeExpiry: Date;
     createdAt: Date;

@@ -13,7 +13,7 @@ export async function POST() {
   }
 
   const user = session.user;
-  const tokenId = storeToken(user._id?.toString());
+  const tokenId = storeToken(user._id);
 
   const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback/credentials?userId=${user._id}&tokenId=${tokenId}`;
 

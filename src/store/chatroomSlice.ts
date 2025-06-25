@@ -1,17 +1,16 @@
 // In messageSlice.ts or a separate chatroomSlice.ts
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Chatroom } from '@/models/chatroom';
-import { Message } from '@/models/message';
 import { ApiResponse } from '@/types/ApiResponse';
-import { PlainChatroom, toPlainChatroom } from '@/helpers/pain-chatroom';
-import { toPlainMessage } from '@/helpers/plain-message';
+import { PlainChatroom, toPlainChatroom } from '@/helpers/plain-chatroom';
 
 export const fetchChatrooms = createAsyncThunk(
   'chatroom/fetch-chatrooms',
-  async (userId: string | undefined) => {
-    const response = await axios.get<ApiResponse>('/api/fetch-chatrooms', { params: { userId } });
-    return response.data.rooms as Chatroom[];
+  async () => {
+    const response = await axios.get<ApiResponse>('/api/fetch-chatrooms');
+    const res = response.data.rooms as Chatroom[];
+    return res.map(c => toPlainChatroom(c))
   }
 );
 
@@ -19,7 +18,8 @@ export const createChatroom = createAsyncThunk(
   'chatroom/create-chatroom',
   async ({userId, isGroup, name}: {userId: string, isGroup: boolean, name: string}) => {
     const response = await axios.post<ApiResponse>('/api/create-chatroom', {userId, isGroup, name})
-    return response.data.room as Chatroom
+    const res = response.data.room as Chatroom
+    return toPlainChatroom(res)
   }
 )
 
@@ -41,14 +41,14 @@ const chatroomSlice = createSlice({
   name: 'chatroom',
   initialState,
   reducers: {
-    setRoomId: (state, action: PayloadAction<string>) => {
+    setRoomId: (state, action) => {
       state.roomId = action.payload
     },
 
-    updateLastMessage: (state, action: PayloadAction<{ message: Message }>) => {
+    updateLastMessage: (state, action) => {
       const room = state.chatrooms.find(r => r._id.toString() === action.payload.message.roomId.toString());
       if (room) {
-        room.lastMessage = toPlainMessage(action.payload.message);
+        room.lastMessage = action.payload.message;
       }
     }
   },
@@ -59,9 +59,9 @@ const chatroomSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchChatrooms.fulfilled, (state, action: PayloadAction<Chatroom[]>) => {
+      .addCase(fetchChatrooms.fulfilled, (state, action) => {
         state.loading = false;
-        state.chatrooms = action.payload.map(room => toPlainChatroom(room));
+        state.chatrooms = action.payload;
       })
       .addCase(fetchChatrooms.rejected, (state, action) => {
         state.loading = false;
@@ -71,9 +71,9 @@ const chatroomSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(createChatroom.fulfilled, (state, action: PayloadAction<Chatroom>) => {
+      .addCase(createChatroom.fulfilled, (state, action) => {
         state.loading = false;
-        state.chatrooms.push(toPlainChatroom(action.payload));
+        state.chatrooms.push(action.payload);
       })
       .addCase(createChatroom.rejected, (state, action) => {
         state.loading = false;

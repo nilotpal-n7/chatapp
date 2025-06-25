@@ -4,8 +4,8 @@ import ChatList from '@/components/site/chatList'
 import ChatWindow from '@/components/site/chatWindow'
 import SearchPanel from '@/components/site/searchPanel'
 import Sidebar from '@/components/site/sidebar'
+import { PlainMessage } from '@/helpers/plain-message'
 import { useSocket } from '@/hooks/use-socket'
-import { Message } from '@/models/message'
 import { fetchChatrooms, updateLastMessage } from '@/store/chatroomSlice'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { useSession } from 'next-auth/react'
@@ -20,7 +20,7 @@ function Dashboard() {
   useEffect(() => {
     async function fetch() {
       if (session?.user._id) {
-        await dispatch(fetchChatrooms(session.user._id));
+        await dispatch(fetchChatrooms());
       }
     }
   
@@ -41,7 +41,7 @@ function Dashboard() {
   useEffect(() => {
     if (!socket) return;
 
-    const handleMessage = (message: Message) => {
+    const handleMessage = (message: PlainMessage) => {
       console.log('📩 Global receive-message:', message);
       dispatch(updateLastMessage({ message }));
     };

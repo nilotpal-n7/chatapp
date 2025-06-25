@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useSession } from 'next-auth/react';
 import { useAppDispatch } from '@/store/hooks';
 import { createChatroom, fetchChatrooms, setRoomId } from '@/store/chatroomSlice';
 import { fetchMessages } from '@/store/messageSlice';
@@ -14,14 +13,15 @@ function SearchPanel() {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
-  const { data: session } = useSession();
 
   useEffect(() => {
-    const delay = setTimeout(() => {
+    const delay = setTimeout(async () => {
       if (searchText.length > 1) {
-        axios.get<ApiResponse>(`/api/search-users?query=${searchText}`)
-          .then((res) => setResults(res.data.users || []))
-          .catch(() => setResults([]));
+        const res = await axios.get<ApiResponse>('/api/search-users', {params: {searchText}})
+
+        if(res.data) setResults(res.data.users || []);
+        else setResults([])
+        
       } else {
         setResults([]);
       }
@@ -32,11 +32,16 @@ function SearchPanel() {
 
   const handleUserClick = async (user: User) => {
     try {
+      console.log('hello')
       const room = await dispatch(createChatroom({userId: user._id.toString(), isGroup: false, name: 'Chatroom'})).unwrap()
+      console.log('chatroom created')
+      dispatch(setRoomId(room._id));
+      console.log('roomId set')
 
-      await dispatch(fetchChatrooms(session?.user._id));
-      dispatch(setRoomId(room._id.toString()));
-      await dispatch(fetchMessages(room._id.toString()));
+      await dispatch(fetchChatrooms());
+      console.log('chatrooms fetched')
+      await dispatch(fetchMessages(room._id));
+      console.log('messages fetched')
 
       setSearchText('');
       setResults([]);

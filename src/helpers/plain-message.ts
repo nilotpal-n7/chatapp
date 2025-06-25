@@ -28,8 +28,8 @@ export function toPlainMessage(doc: Message): PlainMessage {
     message: doc.message,
     emoji: doc.emoji,
     watchedBy: doc.watchedBy,
-    sentTime: doc.sentTime.toISOString(),
-    createdAt: doc.createdAt.toISOString(),
-    updatedAt: doc.updatedAt.toISOString(),
+    sentTime: new Date(doc.sentTime).toISOString(),
+    createdAt: new Date(doc.createdAt).toISOString(),
+    updatedAt: new Date(doc.updatedAt).toISOString(),
   };
 }

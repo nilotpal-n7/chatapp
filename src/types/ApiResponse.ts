@@ -11,5 +11,4 @@ export interface ApiResponse {
     rooms?: Array<Chatroom>;
     user?: User;
     users?: Array<User>;
-    name?: string;
 }

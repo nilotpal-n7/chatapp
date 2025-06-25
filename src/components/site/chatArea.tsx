@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useSocket } from '@/hooks/use-socket';
 import { addMessage } from '@/store/messageSlice';
 import { updateLastMessage } from '@/store/chatroomSlice';
-import { Message } from '@/models/message';
+import { PlainMessage } from '@/helpers/plain-message';
 
 function ChatArea() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -24,11 +24,11 @@ function ChatArea() {
     if (!socket || !roomId) return;
     socket.emit('join-room', roomId);
 
-    const handleMessage = (message: Message) => {
+    const handleMessage = (message: PlainMessage) => {
       dispatch(updateLastMessage({ message }));
 
-      if (message.roomId.toString() !== roomId) return;
-      if (message.senderId.toString() !== session?.user?._id) {
+      if (message.roomId !== roomId) return;
+      if (message.senderId !== session?.user?._id) {
         dispatch(addMessage(message));
       }
     };
@@ -81,8 +81,8 @@ function ChatArea() {
     <Container ref={containerRef}>
       {messages.map((msg) => (
         <MessageCard
-          key={msg._id.toString()}
-          mine={msg.senderId.toString() === session?.user._id}
+          key={msg._id}
+          mine={msg.senderId === session?.user._id}
           scrollDir={scrollDir}
           text={msg.message}
         />
