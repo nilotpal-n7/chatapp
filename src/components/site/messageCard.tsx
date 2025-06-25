@@ -44,7 +44,7 @@ function MessageCard({
 
   return (
     <Wrapper mine={mine}>
-      {!mine && <Avatar src="profile-img.webp" />}
+      {!mine && <Avatar src="/profile-img.webp" />}
       <AnimatedBubble ref={ref} mine={mine} animate={controls} initial={false}>
         <SenderName>{mine ? 'You' : 'Lili Wilson'}</SenderName>
 
@@ -64,7 +64,7 @@ function MessageCard({
           </MetaData>
         </BottomRow>
       </AnimatedBubble>
-      {mine && <Avatar src="profile-img.webp" />}
+      {mine && <Avatar src="/profile-img.webp" />}
     </Wrapper>
   );
 }

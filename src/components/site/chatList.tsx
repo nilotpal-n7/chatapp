@@ -21,7 +21,7 @@ function ChatList() {
           <ProfileCard
             key={room._id}
             name={room.name}
-            imgSrc='profile-img.webp'
+            imgSrc='/profile-img.webp'
             selected={roomId === room._id}
             onClick={() => onClick(room._id)}
             message={room.lastMessage?.message}

@@ -36,10 +36,10 @@ function ChatWindow() {
             </LeftRow>
 
             <RightRow>
-                <Icon src='search.svg' />
-                <Icon src='call.svg' />
-                <Icon src='toggle.svg' />
-                <Icon src='menu.svg' />
+                <Icon src='/search.svg' />
+                <Icon src='/call.svg' />
+                <Icon src='/toggle.svg' />
+                <Icon src='/menu.svg' />
             </RightRow>
         </TopRow>
         <ChatArea />

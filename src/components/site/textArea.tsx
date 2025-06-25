@@ -49,7 +49,7 @@ function TextArea() {
 
   return (
     <FormContainer onSubmit={onSubmit}>
-      <SearchIcon src={'send.svg'} />
+      <SearchIcon src={'/send.svg'} />
       <SearchInput
         onChange={(e) => setMessage(e.target.value)}
         type="text"

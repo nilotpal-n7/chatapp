@@ -54,7 +54,7 @@ function SearchPanel() {
   return (
     <Wrapper>
       <Container>
-        <SearchIcon src={'search.svg'}/>
+        <SearchIcon src={'/search.svg'}/>
         <SearchInput
         ref={inputRef}
         onChange={e => setSearchText(e.target.value)}
@@ -70,7 +70,7 @@ function SearchPanel() {
         <ResultsBox>
           {results.map((user) => (
             <ResultRow key={user._id.toString()} onClick={() => handleUserClick(user)}>
-              <Avatar src={'profile-img.webp'} />
+              <Avatar src={'/profile-img.webp'} />
               <Info>
                 <Name>{user.firstName + " " + user.lastName || 'Unnamed'}</Name>
                 <Email>{user.email}</Email>

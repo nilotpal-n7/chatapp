@@ -1,5 +1,5 @@
 import React from 'react'
-import ScanQRPage from './qrscan'
+import ScanQRPage from './qr-scan'
 
 function Page() {
   return (

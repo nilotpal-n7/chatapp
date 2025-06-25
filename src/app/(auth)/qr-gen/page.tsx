@@ -1,5 +1,5 @@
 import React from 'react'
-import QRLoginPage from './qrlogin'
+import QRLoginPage from './qr-gen'
 
 function Page() {
   return (
