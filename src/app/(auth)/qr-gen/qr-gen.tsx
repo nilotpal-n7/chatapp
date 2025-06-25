@@ -4,9 +4,10 @@ import { useState } from "react";
 import styled from "styled-components";
 import { QRCodeCanvas } from "qrcode.react";
 import axios from "axios";
+import { ApiResponse } from "@/types/ApiResponse";
 
 function QRGenerator() {
-  const [qrUrl, setQrUrl] = useState("");
+  const [tokenId, setTokenId] = useState("");
   const [generated, setGenerated] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -14,9 +15,10 @@ function QRGenerator() {
     setLoading(true);
     setGenerated(false);
     try {
-      const res = await axios.post("/api/qr-gen");
-      if (res.data?.url) {
-        setQrUrl(res.data.url);
+      const res = await axios.post<ApiResponse>("/api/qr-gen");
+      if (res.data?.id) {
+        setTokenId(res.data.id);
+        console.log('token id:', tokenId)
         setGenerated(true);
       }
     } catch (err) {
@@ -37,11 +39,11 @@ function QRGenerator() {
         {generated && (
           <QRWrapper>
             <QRCodeCanvas
-              value={qrUrl}
-              size={200}
-              bgColor="#111"
-              fgColor="#3b82f6"
-              level="H"
+              value={tokenId}
+              size={256}
+              bgColor="#fff"
+              fgColor="#000"
+              level='M'
               imageSettings={{
                 src: "/logo.png", // ensure logo.png exists in public directory
                 height: 40,

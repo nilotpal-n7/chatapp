@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { MultiFormatReader, BinaryBitmap, HybridBinarizer, RGBLuminanceSource, DecodeHintType, BarcodeFormat } from '@zxing/library';
 import { Image } from 'image-js';
-import { createCanvas, ImageData } from 'canvas';
-import { MultiFormatReader, RGBLuminanceSource, BinaryBitmap, HybridBinarizer } from '@zxing/library';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,35 +11,37 @@ export async function POST(req: NextRequest) {
     if (contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
       const file = formData.get('file') as File;
-      if (!file) throw new Error('No file uploaded');
+      if (!file) throw new Error('No file uploaded.');
       buffer = Buffer.from(await file.arrayBuffer());
     } else if (contentType.includes('application/json')) {
       const body = await req.json();
       const base64 = body.image?.split(',')[1];
-      if (!base64) throw new Error('Invalid base64 image');
+      if (!base64) throw new Error('Base64 image missing.');
       buffer = Buffer.from(base64, 'base64');
     } else {
       return NextResponse.json({ success: false, message: 'Unsupported content type' }, { status: 400 });
     }
 
+    // 🖼️ Decode image using image-js
     const image = await Image.load(buffer);
-
-    const canvas = createCanvas(image.width, image.height);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas context not available');
-
     const rgba = image.getRGBAData();
     const clamped = new Uint8ClampedArray(rgba);
-    const imgData = new ImageData(clamped, image.width, image.height);
-    ctx.putImageData(imgData, 0, 0);
-
-    // ZXing requires grayscale buffer
     const luminanceSource = new RGBLuminanceSource(clamped, image.width, image.height);
     const binaryBitmap = new BinaryBitmap(new HybridBinarizer(luminanceSource));
+
     const reader = new MultiFormatReader();
+    const hints = new Map();
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
+    reader.setHints(hints);
+
     const result = reader.decode(binaryBitmap);
 
-    return NextResponse.json({ success: true, data: result.getText() });
+    return NextResponse.json({
+      success: true,
+      message: 'qr decoded successfully',
+      id: result.getText(),
+    }, {status: 201});
+    
   } catch (error) {
     console.error('❌ QR decode error:', error);
     return NextResponse.json({ success: false, message: 'No QR code found' }, { status: 404 });

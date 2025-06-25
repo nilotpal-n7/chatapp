@@ -25,22 +25,12 @@ function QRScanPage() {
     localStorage.setItem('scan-history', JSON.stringify(updated));
   };
 
-  const verifyAndLogin = async (url: string) => {
+  const verifyAndLogin = async (tokenId: string) => {
     try {
-      const obj = new URL(url, window.location.origin);
-      const userId = obj.searchParams.get('userId');
-      const tokenId = obj.searchParams.get('tokenId');
-
-      if (!userId || !tokenId) return setError('⚠️ Invalid QR parameters');
-
       setLoading(true);
-      const res = await axios.post('/api/qr-verify', { tokenId });
+      saveHistory(tokenId);
 
-      if (!res.data.success) return setError(res.data.message);
-
-      saveHistory(url);
       await signIn('credentials', {
-        userId,
         tokenId,
         redirect: true,
         callbackUrl: '/dashboard',
@@ -55,12 +45,13 @@ function QRScanPage() {
 
   const handleScan = useDebouncedCallback(
     async (results: IDetectedBarcode[]) => {
+      console.log('result scan', results)
       if (!results || !Array.isArray(results) || !results[0]) return;
 
       const text = results[0].rawValue;
       await verifyAndLogin(text);
     },
-    1000 // 1s debounce
+    2000 // 2s debounce
   );
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,7 +85,8 @@ function QRScanPage() {
         <ScannerWrapper>
           <Scanner
             onScan={handleScan}
-            onError={() => {
+            onError={(err) => {
+              console.error("Scanner Error:", err);
               setPermissionError(true);
               setError('Camera access denied');
             }}

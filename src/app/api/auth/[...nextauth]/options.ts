@@ -7,13 +7,12 @@ import { NextAuthOptions, Session } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { User } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import { getTokenData } from '@/lib/qr-token-store' // ✅ QR token memory store
+import QRTokenModel from "@/models/qrToken";
 
 type CredentialsType = {
   email?: string;
   password?: string;
   code?: string;
-  userId?: string;
   tokenId?: string; // ✅ For QR login
 };
 
@@ -26,8 +25,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
         code: { label: 'Code', type: 'text' },
-        userId: { label: 'User ID', type: 'text' },
-        tokenId: { label: 'Token ID', type: 'text' } // ✅ added
+        tokenId: { label: 'Token ID', type: 'text' }
       },
       async authorize(credentials): Promise<User> {
         await dbConnect();
@@ -36,17 +34,26 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Missing credentials");
         }
 
-        const { email, password, code, userId, tokenId } = credentials as CredentialsType;
+        const { email, password, code, tokenId } = credentials as CredentialsType;
 
         // ✅ QR login logic (userId + tokenId)
-        if (userId && tokenId && !email && !password && !code) {
-          const tokenData = getTokenData(tokenId);
-          if (!tokenData || tokenData.userId !== userId) {
-            throw new Error("QR token is invalid or expired");
+        if (tokenId && !email && !password && !code) {
+          const token = await QRTokenModel.findById(tokenId)
+
+          if (!token) {
+            throw new Error("QR token is invalid");
+          } 
+          
+          if(token.expiry < new Date()) {
+            await QRTokenModel.deleteOne({_id: tokenId})
+            throw new Error("QR token has expired");
           }
 
-          const user = await UserModel.findById(userId).lean();
-          if (!user) throw new Error("User not found");
+          const user = await UserModel.findById(token.userId).lean();
+          if (!user) {
+            await QRTokenModel.deleteOne({_id: tokenId})
+            throw new Error("User not found");
+          }
 
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { password: _, verifyCode: __, verifyCodeExpiry: ___, ...safeUser } = user;
