@@ -2,9 +2,10 @@
 
 import { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { Scanner } from '@yudiel/react-qr-scanner';
+import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
 import axios from 'axios';
 import { signIn } from 'next-auth/react';
+import { useDebouncedCallback } from 'use-debounce';
 
 function QRScanPage() {
   const [error, setError] = useState('');
@@ -52,11 +53,15 @@ function QRScanPage() {
     }
   };
 
-  const handleScan = debounce(async (results) => {
-    if (!results?.length) return;
-    const text = results[0].rawValue;
-    await verifyAndLogin(text);
-  }, 1000); // debounce 1s
+  const handleScan = useDebouncedCallback(
+    async (results: IDetectedBarcode[]) => {
+      if (!results || !Array.isArray(results) || !results[0]) return;
+
+      const text = results[0].rawValue;
+      await verifyAndLogin(text);
+    },
+    1000 // 1s debounce
+  );
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,7 +72,7 @@ function QRScanPage() {
 
     try {
       setLoading(true);
-      const { data } = await axios.post('/api/decode-qr', formData);
+      const { data } = await axios.post('/api/qr-decode', formData);
       if (data.success) {
         await verifyAndLogin(data.data);
       } else {
@@ -113,14 +118,6 @@ function QRScanPage() {
       </Card>
     </Wrapper>
   );
-}
-
-function debounce(fn: (...args: any[]) => void, delay: number) {
-  let timer: NodeJS.Timeout;
-  return (...args: any[]) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
 }
 
 export default QRScanPage;
