@@ -3,6 +3,7 @@ import "./globals.css";
 import { Archivo } from 'next/font/google'
 import Providers from "@/context/Providers";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next"
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -24,6 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <Providers>
         <body className={archivo.className}>
+          <Analytics />
           <main>{children}</main>
           <Toaster position="bottom-right" richColors />
         </body>
