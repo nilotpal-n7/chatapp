@@ -29,6 +29,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials): Promise<User> {
         await dbConnect();
+        console.log("🛂 Authorize called with:", credentials);
 
         if (!credentials) {
           throw new Error("Missing credentials");
@@ -38,7 +39,8 @@ export const authOptions: NextAuthOptions = {
 
         // ✅ QR login logic (userId + tokenId)
         if (tokenId && !email && !password && !code) {
-          const token = await QRTokenModel.findById(tokenId)
+          console.log("🔍 Handling QR login with tokenId:", tokenId);
+          const token = await QRTokenModel.findOne({_id: tokenId})
 
           if (!token) {
             throw new Error("QR token is invalid");
@@ -49,12 +51,17 @@ export const authOptions: NextAuthOptions = {
             throw new Error("QR token has expired");
           }
 
+          if (token.status === 'pending') {
+            throw new Error("QR token is not approved");
+          }
+
           const user = await UserModel.findById(token.userId).lean();
           if (!user) {
             await QRTokenModel.deleteOne({_id: tokenId})
             throw new Error("User not found");
           }
 
+          await QRTokenModel.deleteOne({_id: tokenId})
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { password: _, verifyCode: __, verifyCodeExpiry: ___, ...safeUser } = user;
           return safeUser as User;

@@ -1,35 +1,23 @@
+// app/api/qr-gen
+
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/options';
 import dbConnect from '@/server/db';
-import { nanoid } from 'nanoid';
 import QRTokenModel from '@/models/qrToken';
 
 export async function POST() {
   try {
-    dbConnect()
-    const session = await getServerSession(authOptions);
+    await dbConnect()
 
-    if (!session || !session.user) {
-      return NextResponse.json({
-        success: false,
-        message: 'Unauthorized access',
-      }, { status: 401 });
-    }
-
-    const tokenId = nanoid(12);
     const expiry = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
-  
-    await QRTokenModel.create({
-      tokenId,
-      userId: session.user._id,
+    const token = await QRTokenModel.create({
       expiry,
+      status: 'pending',
     });
 
     return NextResponse.json({
       success: true,
       message: 'QR code generated',
-      id: tokenId,
+      id: token._id,
     }, {status: 200});
 
   } catch (error) {

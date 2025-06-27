@@ -27,16 +27,37 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWithSoc
     io.on('connection', (socket) => {
       console.log('⚡ Socket connected:', socket.id);
 
+      // ==== ✅ QR LOGIN FLOW ====
+
+      socket.on('create-qr-session', (sessionId) => {
+        socket.join(sessionId);
+        console.log(`🔐 QR session created: ${sessionId}`);
+      });
+
+      socket.on('approve-qr-session', ({ sessionId }) => {
+        const clientSocketId = socket.id;
+
+        if (!io.sockets.adapter.rooms.has(sessionId)) {
+          socket.emit('qr-error', { message: 'QR session not found.' });
+          return;
+        }
+
+        console.log(`📤 Approval requested for: ${sessionId} by ${clientSocketId}`);
+        io.to(sessionId).emit('qr-approval-request', { clientSocketId });
+      });
+
+      socket.on('grant-qr-login', ({ clientSocketId, userId, tokenId }) => {
+        console.log(`✅ Granting login to ${clientSocketId}`);
+        io.to(clientSocketId).emit('qr-login-success', { userId, tokenId });
+      });
+
+      // ==== 💬 Chat Rooms ====
+
       socket.on('join-room', (roomId) => {
         socket.join(roomId);
-
-        // Send all online users in this room
         const socketsInRoom = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
-        const users = socketsInRoom
-          .map(id => onlineUsers.get(id))
-          .filter(Boolean);
-          
-        io.to(roomId).emit('room-online-users', users); // ✅ push list
+        const users = socketsInRoom.map(id => onlineUsers.get(id)).filter(Boolean);
+        io.to(roomId).emit('room-online-users', users);
         console.log(`📥 Joined room: ${roomId}`);
       });
 
@@ -47,7 +68,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWithSoc
 
       socket.on('register-user', (userId) => {
         onlineUsers.set(socket.id, userId);
-        console.log('✅ user online:', userId);
+        console.log('✅ User online:', userId);
       });
 
       socket.on('disconnect', () => {

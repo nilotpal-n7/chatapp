@@ -1,5 +1,6 @@
 'use client'
 
+import QRGenerator from '@/components/site/qrGen';
 import { signInSchema, SignInType } from '@/schemas/signInSchema';
 import { ApiResponse } from '@/types/ApiResponse';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -158,6 +159,9 @@ export default function SignIn() {
             </ButtonRow>
           </form>
         </LeftSection>
+        <QRWrapper>
+          <QRGenerator />
+        </QRWrapper>
         <Logo>⋯ NG</Logo>
       </Container>
     </Wrapper>
@@ -166,7 +170,7 @@ export default function SignIn() {
 
 const Wrapper = styled.div`
   min-height: 100vh;
-  min-width: 700px;
+  min-width: 720px;
   background: #2f2f3a;
   display: flex;
   align-items: center;
@@ -306,4 +310,20 @@ const Logo = styled.div`
   bottom: 30px;
   right: 50px;
   opacity: 0.8;
+`;
+
+const QRWrapper = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-45%);
+  width: 256px;  // slightly smaller
+  height: auto;
+  padding: 12px;
+  background: transparent;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;

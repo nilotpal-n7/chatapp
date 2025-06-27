@@ -1,3 +1,5 @@
+// app/api/qr-decode
+
 import { NextRequest, NextResponse } from 'next/server';
 import { MultiFormatReader, BinaryBitmap, HybridBinarizer, RGBLuminanceSource, DecodeHintType, BarcodeFormat } from '@zxing/library';
 import { Image } from 'image-js';

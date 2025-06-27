@@ -114,7 +114,7 @@ export default function SignUp() {
 
 const Wrapper = styled.div`
   min-height: 100vh;
-  min-width: 700px;
+  min-width: 720px;
   background: #2f2f3a;
   display: flex;
   align-items: center;
