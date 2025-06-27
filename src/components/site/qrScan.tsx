@@ -6,8 +6,7 @@ import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
 import axios from 'axios';
 import { useDebouncedCallback } from 'use-debounce';
 import { ApiResponse } from '@/types/ApiResponse';
-import { useSession } from 'next-auth/react';
-import socket from '@/lib/socket';
+import { useSocket } from '@/hooks/use-socket';
 
 function QRScan() {
   const [error, setError] = useState('');
@@ -15,33 +14,35 @@ function QRScan() {
   const [permissionError, setPermissionError] = useState(false);
   const [scannedTokenId, setScannedTokenId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = useSession();
-
   const tokenIdRef = useRef<string | null>(null);
+  const { socket, socketReady } = useSocket();
 
   useEffect(() => {
-    socket.on('qr-approval-request', async ({ clientSocketId }) => {
+    if (!socketReady) return;
+
+    const handleRequest = async ({ clientSocketId }: { clientSocketId: string }) => {
       const tokenId = tokenIdRef.current;
       if (tokenId) {
-        await verifyAndLogin(tokenId, clientSocketId); // ✅ pass socket id
+        await verifyAndLogin(tokenId, clientSocketId);
       }
-    });
-
-    return () => {
-      socket.off('qr-approval-request');
     };
-  }, []);
+
+    socket.on('qr-approval-request', handleRequest);
+    return () => {
+      socket.off('qr-approval-request', handleRequest);
+    };
+  }, [socketReady]);
 
   const verifyAndLogin = async (tokenId: string, socketId: string) => {
     try {
-      console.log('entered verify and login function 🔥')
+      console.log('entered verify and login function 🔥');
       setLoading(true);
       const res = await axios.post<ApiResponse>('/api/qr-verify', { tokenId });
 
       if (res.data.success) {
-        socket.emit("grant-qr-login", {
+        console.log('🧠 Emitting grant-qr-login to clientSocketId:', socketId);
+        socket.emit('grant-qr-login', {
           clientSocketId: socketId,
-          userId: session?.user._id,
           tokenId,
         });
       } else {
@@ -57,18 +58,14 @@ function QRScan() {
 
   const handleScan = useDebouncedCallback(
     async (results: IDetectedBarcode[]) => {
-      if (!results || !Array.isArray(results) || !results[0]) return;
+      if (!results?.[0]) return;
 
       const token = results[0].rawValue;
       if (!scannedTokenId) {
         setScannedTokenId(token);
         tokenIdRef.current = token;
-        console.log("📤 Scanner emitting approve-qr-session:", token);
-
-        socket.emit("create-qr-session", token);
-        socket.emit("approve-qr-session", {
-          sessionId: token,
-        });
+        console.log('📤 Scanner emitting approve-qr-session:', token);
+        socket.emit('approve-qr-session', { sessionId: token });
       }
     },
     1000
@@ -87,13 +84,8 @@ function QRScan() {
       if (data.success && !scannedTokenId) {
         setScannedTokenId(data.id);
         tokenIdRef.current = data.id;
-        console.log("📤 Scanner emitting approve-qr-session:", data.id);
-        
-        socket.emit("create-qr-session", data.id);
-        socket.emit("approve-qr-session", {
-          sessionId: data.id,
-        });
-
+        console.log('📤 Scanner emitting approve-qr-session:', data.id);
+        socket.emit('approve-qr-session', { sessionId: data.id });
       } else {
         setError(data.message || '❌ QR not found');
       }

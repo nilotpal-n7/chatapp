@@ -8,21 +8,35 @@ import { QRCodeCanvas } from "qrcode.react";
 import axios from "axios";
 import { ApiResponse } from "@/types/ApiResponse";
 import { signIn } from "next-auth/react";
-import socket from "@/lib/socket";
+// import socket from "@/lib/socket";
+import { useSocket } from "@/hooks/use-socket";
 
 function QRGenerator() {
-  const [tokenId, setTokenId] = useState("");
+  const [tokenId, setTokenId] = useState('');
   const [generated, setGenerated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { socket, socketReady } = useSocket();
 
   useEffect(() => {
-    if (!tokenId) return;
+    if (!socketReady) return;
 
-    socket.emit("create-qr-session", tokenId);
-    console.log("🎉 QR session created with tokenId:", tokenId);
+    socket.on('connect', () => {
+      console.log('🆔 QR page socket connected:', socket.id);
+    });
 
-    socket.on("qr-login-success", async ({ tokenId }) => {
-      console.log("🎉 QR login success received with tokenId:", tokenId);
+    return () => {
+      socket.off('connect');
+    };
+  }, [socketReady]);
+
+  useEffect(() => {
+    if (!socketReady || !tokenId) return;
+
+    socket.emit('create-qr-session', tokenId);
+    console.log('🎉 QR session created with tokenId:', tokenId);
+
+    const handleLogin = async ({ tokenId }: { tokenId: string }) => {
+      console.log('🎉 QR login success received with tokenId:', tokenId);
 
       const res = await signIn('credentials', {
         tokenId,
@@ -30,35 +44,36 @@ function QRGenerator() {
         callbackUrl: '/dashboard',
       });
 
-      console.log("🔐 signIn response:", res);
-    });
+      console.log('🔐 signIn response:', res);
+    };
+
+    socket.on('qr-login-success', handleLogin);
 
     return () => {
-      socket.off("qr-login-success");
+      socket.off('qr-login-success', handleLogin);
     };
-  }, [tokenId]);
-
-  useEffect(() => {
-    generateQRCode()
-  }, [])
+  }, [socketReady, tokenId]);
 
   const generateQRCode = async () => {
     setLoading(true);
     setGenerated(false);
 
     try {
-      const res = await axios.post<ApiResponse>("/api/qr-gen");
+      const res = await axios.post<ApiResponse>('/api/qr-gen');
       if (res.data?.id) {
-        setTokenId(res.data.id)
+        setTokenId(res.data.id);
         setGenerated(true);
       }
-
     } catch (err) {
-      console.error("QR Generation Failed", err);
+      console.error('QR Generation Failed', err);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    generateQRCode();
+  }, []);
 
   return (
     <>

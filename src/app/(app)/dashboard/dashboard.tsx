@@ -30,13 +30,18 @@ function Dashboard() {
   const chatrooms = useAppSelector((state) => state.chatroom.chatrooms);
 
   useEffect(() => {
-    if (!socket || !chatrooms?.length) return;
+    if (!socket || !session?.user?._id || !chatrooms.length) return;
 
+    // ✅ 1. Register user after connect
+    socket.emit('register-user', session.user._id);
+    console.log('✅ Registered user:', session.user._id);
+
+    // ✅ 2. Join rooms after registration
     chatrooms.forEach((room) => {
       socket.emit('join-room', room._id);
-      console.log('📥 Auto joined room:', room._id);
+      console.log('📥 Joined room:', room._id);
     });
-  }, [socket, chatrooms]);
+  }, [socket, session?.user._id, chatrooms]);
 
   useEffect(() => {
     if (!socket) return;
@@ -51,7 +56,6 @@ function Dashboard() {
       socket.off('receive-message', handleMessage)
     };
   }, [socket]);
-
 
   return (
     <Container>

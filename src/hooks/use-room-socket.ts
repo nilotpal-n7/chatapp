@@ -12,6 +12,7 @@ export function useRoomSocket(socket: Socket | null, roomId: string | null) {
     console.log(`📥 Joined room: ${roomId}`);
 
     const handleOnline = (users: string[]) => {
+      console.log('🧑‍💻 Online users update for room:', roomId, users);
       setOnlineUsers(users);
     };
 
